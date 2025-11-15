@@ -627,3 +627,33 @@
   height: 20px;
   object-fit: contain;
 }
+
+/* Dev Button */
+#dev-add-coins-btn {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  background: var(--color-accent);
+  color: #000000;
+  border: var(--border-medium) solid #000000;
+  box-shadow: var(--shadow-brutal);
+  cursor: pointer;
+  transition: all 0.1s;
+  text-transform: uppercase;
+  z-index: 100; /* Ensure it's on top */
+}
+
+#dev-add-coins-btn:hover {
+  box-shadow: var(--shadow-brutal-hover);
+  transform: translate(-50%, -2px);
+}
+
+#dev-add-coins-btn:active {
+  box-shadow: var(--shadow-brutal-active);
+  transform: translate(-50%, 2px);
+}
+}

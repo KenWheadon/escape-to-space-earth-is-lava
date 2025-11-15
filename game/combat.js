@@ -170,6 +170,9 @@ function createGameUI() {
             <div id="altitude-value">0m</div>
           </div>
         </div>
+
+        <!-- Dev Button -->
+        <button id="dev-add-coins-btn">Add 1000 Coins</button>
       </div>
     </div>
 
@@ -450,6 +453,15 @@ function setupGameEventListeners() {
       }
     }
   });
+
+  // Dev button to add coins
+  const devAddCoinsBtn = document.getElementById("dev-add-coins-btn");
+  if (devAddCoinsBtn) {
+    addTouchAndClickListener(devAddCoinsBtn, () => {
+      gameState.coins += 1000;
+      updateUI();
+    });
+  }
 }
 
 // Open shop
@@ -492,7 +504,10 @@ function updateGame() {
     Math.sin(gameState.player.sineOffset) * GAME_CONFIG.PLAYER_SINE_AMPLITUDE;
 
   // Handle rising (when holding balloon)
-  if (gameState.isHoldingBalloon && gameState.energy > 0) {
+  if (
+    gameState.isHoldingBalloon &&
+    gameState.energy >= GAME_CONFIG.ENERGY_RISE_COST
+  ) {
     // Increase altitude instead of moving player Y position
     gameState.player.altitude += GAME_CONFIG.RISE_SPEED * 0.5; // Convert pixels to meters
     gameState.energy = Math.max(
@@ -511,7 +526,7 @@ function updateGame() {
       );
     gameState.energy = Math.min(
       GAME_CONFIG.ENERGY_MAX,
-      gameState.energy + production
+      gameState.energy + production / 60 // Drastically reduce per-frame production
     );
   }
 
