@@ -628,12 +628,19 @@
   object-fit: contain;
 }
 
-/* Dev Button */
-#dev-add-coins-btn {
+/* Dev Buttons */
+#dev-buttons-container {
   position: absolute;
   bottom: 15px;
   left: 50%;
   transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+
+#dev-add-coins-btn,
+#dev-spawn-enemy-btn {
   padding: 10px 20px;
   font-size: 14px;
   font-weight: bold;
@@ -644,16 +651,17 @@
   cursor: pointer;
   transition: all 0.1s;
   text-transform: uppercase;
-  z-index: 100; /* Ensure it's on top */
 }
 
-#dev-add-coins-btn:hover {
+#dev-add-coins-btn:hover,
+#dev-spawn-enemy-btn:hover {
   box-shadow: var(--shadow-brutal-hover);
-  transform: translate(-50%, -2px);
+  transform: translateY(-2px);
 }
 
-#dev-add-coins-btn:active {
+#dev-add-coins-btn:active,
+#dev-spawn-enemy-btn:active {
   box-shadow: var(--shadow-brutal-active);
-  transform: translate(-50%, 2px);
+  transform: translateY(2px);
 }
 }

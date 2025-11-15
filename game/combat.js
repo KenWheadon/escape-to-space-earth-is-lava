@@ -104,6 +104,16 @@ const elements = {
 function createGameUI() {
   elements.gameContent.innerHTML = `
     <style>
+      @keyframes pulse {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 0, 0.7); }
+        70% { transform: scale(1.05); box-shadow: 0 0 10px 15px rgba(255, 255, 0, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 0, 0); }
+      }
+      .shop-btn-affordable {
+        animation: pulse 1.5s infinite;
+      }
+    </style>
+    <style>
       .enemy-balloon {
         position: absolute;
         /* other styles */
@@ -216,8 +226,9 @@ function createGameUI() {
 
         <!-- Dev Buttons -->
         <div id="dev-buttons-container">
-          <button id="dev-spawn-enemy-btn" class="dev-btn">Spawn Enemy</button>
+          <button id="dev-add-energy-btn" class="dev-btn">Add Energy</button>
           <button id="dev-add-coins-btn" class="dev-btn">Add Coins</button>
+          <button id="dev-spawn-enemy-btn">Spawn Enemy</button>
         </div>
       </div>
     </div>
@@ -323,6 +334,17 @@ function purchaseBuilding(buildingKey) {
     updateUI();
     updateShopDisplay();
   }
+}
+
+// Check if any shop upgrade can be afforded
+function canAffordAnyUpgrade() {
+  for (const buildingKey in GAME_CONFIG.BUILDINGS) {
+    const cost = calculateBuildingCost(buildingKey);
+    if (gameState.coins >= cost) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // Initialize game
@@ -503,7 +525,17 @@ function setupGameEventListeners() {
 
   // Dev button to add coins
   const devAddCoinsBtn = document.getElementById("dev-add-coins-btn");
+  const devAddEnergyBtn = document.getElementById("dev-add-energy-btn");
+
+  if (devAddEnergyBtn) {
+    addTouchAndClickListener(devAddEnergyBtn, () => {
+      gameState.energy = GAME_CONFIG.ENERGY_MAX;
+      updateUI();
+    });
+  }
+
   if (devAddCoinsBtn) {
+    // This button might not have the class yet, let's be safe
     addTouchAndClickListener(devAddCoinsBtn, () => {
       gameState.coins += 1000;
       updateUI();
@@ -556,6 +588,7 @@ function startGameLoop() {
 function updateGame() {
   const now = Date.now();
 
+  let riseAmount = 0;
   // Update player sine wave movement
   gameState.player.sineOffset += GAME_CONFIG.PLAYER_SINE_SPEED;
   gameState.player.x =
@@ -567,12 +600,14 @@ function updateGame() {
     gameState.isHoldingBalloon &&
     gameState.energy >= GAME_CONFIG.ENERGY_RISE_COST
   ) {
+    const riseSpeed = GAME_CONFIG.RISE_SPEED;
     // Increase altitude instead of moving player Y position
-    gameState.player.altitude += GAME_CONFIG.RISE_SPEED * 0.5; // Convert pixels to meters
+    gameState.player.altitude += riseSpeed * 0.5; // Convert pixels to meters
     gameState.energy = Math.max(
       0,
       gameState.energy - GAME_CONFIG.ENERGY_RISE_COST
     );
+    riseAmount = riseSpeed;
   }
 
   // Energy production
@@ -636,10 +671,10 @@ function updateGame() {
   }
 
   // Update golden balloons
-  updateGoldenBalloons();
+  updateGoldenBalloons(riseAmount);
 
   // Update enemies
-  updateEnemies();
+  updateEnemies(riseAmount);
 
   // Auto attack
   updateAutoAttack(now);
@@ -666,7 +701,7 @@ function spawnGoldenBalloon() {
 }
 
 // Update golden balloons
-function updateGoldenBalloons() {
+function updateGoldenBalloons(riseAmount) {
   const magnetRange =
     GAME_CONFIG.STARTING_MAGNET_RANGE +
     gameState.buildings.MAGNET_STRENGTH *
@@ -675,6 +710,9 @@ function updateGoldenBalloons() {
   gameState.goldenBalloons = gameState.goldenBalloons.filter((balloon) => {
     // Move left
     balloon.x -= GAME_CONFIG.GOLDEN_BALLOON_SPEED;
+
+    // Move down if player is rising
+    balloon.y += riseAmount;
 
     // Check if collected (within magnet range)
     const dx = balloon.x - gameState.player.x;
@@ -687,7 +725,7 @@ function updateGoldenBalloons() {
     }
 
     // Remove if off screen
-    if (balloon.x < -50) {
+    if (balloon.x < -50 || balloon.y > 700) {
       return false;
     }
 
@@ -766,11 +804,14 @@ function spawnEnemy() {
 }
 
 // Update enemies
-function updateEnemies() {
+function updateEnemies(riseAmount) {
   const now = Date.now();
 
   gameState.enemies = gameState.enemies.filter((enemy) => {
     // Animate in if spawning
+    // Move down if player is rising
+    enemy.y += riseAmount;
+
     if (enemy.isSpawning) {
       enemy.x -= enemy.spawnSpeed;
       if (enemy.x <= enemy.targetX) {
@@ -1157,6 +1198,16 @@ function updateUI() {
       cooldownFill.style.width = `${progress * 100}%`;
     } else {
       cooldownContainer.style.display = "none";
+    }
+  }
+
+  // Update shop button animation if an upgrade is affordable
+  const shopBtn = document.getElementById("shop-btn");
+  if (shopBtn) {
+    if (canAffordAnyUpgrade()) {
+      shopBtn.classList.add("shop-btn-affordable");
+    } else {
+      shopBtn.classList.remove("shop-btn-affordable");
     }
   }
 }
