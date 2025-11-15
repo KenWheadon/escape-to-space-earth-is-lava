@@ -55,10 +55,10 @@ export const GAME_CONFIG = {
   ENEMY_GOLDEN_BALLOON_DROP: 5, // How many golden balloons drop on defeat
 
   // Auto Attack
-  STARTING_ATTACK_RANGE: 200,
+  STARTING_ATTACK_RANGE: 800,
   ATTACK_DAMAGE: 1,
-  ATTACK_COOLDOWN: 5000, // ms between attacks
-  LASER_DURATION: 300, // ms laser is visible
+  ATTACK_COOLDOWN: 10000, // ms between attacks
+  LASER_DURATION: 500, // ms laser is visible
 
   // Buildings / Upgrades
   BUILDINGS: {
@@ -73,11 +73,11 @@ export const GAME_CONFIG = {
     },
     AUTO_ATTACK: {
       name: "Auto Attack",
-      description: "Increases attack damage and speed",
+      description: "Increases attack speed",
       baseCost: 20,
       costMultiplier: 1.6,
       baseDamage: 1,
-      damageIncrease: 0.5,
+      damageIncrease: 0,
       baseRange: 200,
       rangeIncrease: 20,
       cooldownMultiplier: 0.9, // Each level reduces cooldown by 10%
