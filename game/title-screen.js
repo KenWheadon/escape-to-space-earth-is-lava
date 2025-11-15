@@ -57,8 +57,7 @@ function addTouchAndClickListener(element, handler) {
 // Reset title screen to initial state - call before initTitleScreen when returning from game
 export function resetTitleScreen() {
   // Reset the title element to its original state
-  elements.title.innerHTML =
-    "HOT AIR BALLOON ESCAPES TO SPACE (SINCE THE EARTH IS LAVA)";
+  elements.title.innerHTML = "HOT AIR BALLOON ESCAPES TO SPACE";
   elements.title.style.animation = "none";
   elements.title.style.marginBottom = "";
   elements.title.style.cursor = "";

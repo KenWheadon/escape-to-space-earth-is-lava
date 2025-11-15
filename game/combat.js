@@ -40,7 +40,7 @@ let gameState = {
   lastGoldenBalloonSpawn: 0,
   lastEnemySpawn: 0,
   lastEnemyLaserTime: 0,
-  lastAttackTime: 0,
+  lastAttackTime: Date.now(),
   lastGoldProduction: 0,
 
   // Upgrades
@@ -125,6 +125,21 @@ function createGameUI() {
         background-color: #ff4500; /* Orange-red color */
         border-radius: 4px;
       }
+      .enemy-hp-text {
+        position: absolute;
+        top: -20px; /* Position above the balloon */
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px black;
+      }
+      #player-attack-cooldown-container {
+        position: absolute;
+        bottom: -30px; /* Below the player balloon */
+        display: none; /* Hidden by default */
+      }
     </style>
     <div id="game-canvas">
       <!-- Background layers -->
@@ -148,6 +163,10 @@ function createGameUI() {
       <!-- Player balloon -->
       <div id="player-balloon">
         <img src="images/hot-air-balloon.png" alt="Player Balloon">
+        <!-- Player attack cooldown bar -->
+        <div id="player-attack-cooldown-container" class="enemy-cooldown-bar-bg">
+            <div id="player-attack-cooldown-fill" class="enemy-cooldown-bar-fill"></div>
+        </div>
       </div>
 
       <!-- UI Overlays -->
@@ -340,7 +359,7 @@ export function initGame() {
     lastGoldenBalloonSpawn: 0,
     lastEnemySpawn: Date.now(),
     lastEnemyLaserTime: 0,
-    lastAttackTime: 0,
+    lastAttackTime: Date.now(),
     lastGoldProduction: Date.now(),
 
     buildings: {
@@ -789,17 +808,18 @@ function updateEnemies() {
 // Auto attack system
 function updateAutoAttack(now) {
   if (gameState.buildings.AUTO_ATTACK === 0) return;
-  if (gameState.energy <= 0) return;
 
-  const attackRange =
-    GAME_CONFIG.STARTING_ATTACK_RANGE +
-    gameState.buildings.AUTO_ATTACK *
-      GAME_CONFIG.BUILDINGS.AUTO_ATTACK.rangeIncrease;
+  const level = gameState.buildings.AUTO_ATTACK;
+  const attackCooldown =
+    GAME_CONFIG.ATTACK_COOLDOWN *
+    Math.pow(GAME_CONFIG.BUILDINGS.AUTO_ATTACK.cooldownMultiplier, level);
 
-  if (now - gameState.lastAttackTime >= GAME_CONFIG.ATTACK_COOLDOWN) {
-    // Find closest enemy in range
+  if (now - gameState.lastAttackTime >= attackCooldown) {
+    gameState.lastAttackTime = now;
+
+    // Find closest enemy on screen
     let closestEnemy = null;
-    let closestDistance = attackRange;
+    let closestDistance = Infinity;
 
     gameState.enemies.forEach((enemy) => {
       const dx = enemy.x - gameState.player.x;
@@ -819,20 +839,12 @@ function updateAutoAttack(now) {
       // Damage enemy
       const damage =
         GAME_CONFIG.ATTACK_DAMAGE +
-        gameState.buildings.AUTO_ATTACK *
-          GAME_CONFIG.BUILDINGS.AUTO_ATTACK.damageIncrease;
+        level * GAME_CONFIG.BUILDINGS.AUTO_ATTACK.damageIncrease;
       closestEnemy.health -= damage;
 
       if (closestEnemy.health <= 0) {
         defeatEnemy(closestEnemy);
       }
-
-      // Consume energy
-      gameState.energy = Math.max(
-        0,
-        gameState.energy - GAME_CONFIG.ENERGY_ATTACK_COST
-      );
-      gameState.lastAttackTime = now;
 
       audioManager.playSoundEffect("btnClick");
     }
@@ -1035,7 +1047,8 @@ function renderEntities() {
       enemyEl.className = "enemy-balloon";
       enemyEl.innerHTML = `
         <img src="images/${enemy.image}" alt="Enemy Balloon">
-        <div class="enemy-cooldown-bar-bg">
+        <div class="enemy-hp-text"></div> <!-- HP Text -->
+        <div class="enemy-cooldown-bar-bg"> <!-- Cooldown Bar -->
           <div class="enemy-cooldown-bar-fill"></div>
         </div>
       `;
@@ -1046,6 +1059,14 @@ function renderEntities() {
     // Update position
     enemyEl.style.left = enemy.x + "px";
     enemyEl.style.top = enemy.y + "px";
+
+    // Update health text
+    const hpText = enemyEl.querySelector(".enemy-hp-text");
+    if (hpText) {
+      hpText.textContent = `${Math.ceil(enemy.health)}/${
+        GAME_CONFIG.ENEMY_HEALTH
+      }`;
+    }
 
     // Update cooldown bar
     const cooldownFill = enemyEl.querySelector(".enemy-cooldown-bar-fill");
@@ -1111,6 +1132,32 @@ function updateUI() {
   }
   if (cloudLayerName) {
     cloudLayerName.textContent = currentLayer.name;
+  }
+
+  // Update player attack cooldown bar
+  const cooldownContainer = document.getElementById(
+    "player-attack-cooldown-container"
+  );
+  const cooldownFill = document.getElementById("player-attack-cooldown-fill");
+  if (cooldownContainer && cooldownFill) {
+    const hasAttackUpgrade = gameState.buildings.AUTO_ATTACK > 0;
+    const enemiesOnScreen = gameState.enemies.length > 0;
+
+    if (hasAttackUpgrade && enemiesOnScreen) {
+      cooldownContainer.style.display = "block";
+      const now = Date.now();
+      const level = gameState.buildings.AUTO_ATTACK;
+      const attackCooldown =
+        GAME_CONFIG.ATTACK_COOLDOWN *
+        Math.pow(GAME_CONFIG.BUILDINGS.AUTO_ATTACK.cooldownMultiplier, level);
+      const progress = Math.min(
+        1,
+        (now - gameState.lastAttackTime) / attackCooldown
+      );
+      cooldownFill.style.width = `${progress * 100}%`;
+    } else {
+      cooldownContainer.style.display = "none";
+    }
   }
 }
 
