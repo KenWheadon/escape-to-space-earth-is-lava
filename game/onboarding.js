@@ -1,37 +1,65 @@
-// Onboarding Module - handles first-time popups for each level
+// Onboarding Module - handles first-time tutorial popups for the game
 
-import { isFirstTime, markFightAsSeen } from "./storage-manager.js";
+// Cache DOM elements - will be initialized on first use
+let elements = null;
 
-// Cache DOM elements
-const elements = {
-  overlay: document.getElementById("overlay"),
-  popup: document.getElementById("onboarding-popup"),
-  title: document.getElementById("onboarding-title"),
-  text: document.getElementById("onboarding-text"),
-  closeBtn: document.getElementById("onboarding-close"),
+function getElements() {
+  if (!elements) {
+    elements = {
+      overlay: document.getElementById("overlay"),
+      popup: document.getElementById("onboarding-popup"),
+      content: document.getElementById("onboarding-content"),
+      title: document.getElementById("onboarding-title"),
+      text: document.getElementById("onboarding-text"),
+      closeBtn: document.getElementById("onboarding-close"),
+    };
+  }
+  return elements;
+}
+
+// Storage keys for tracking which messages have been shown
+const ONBOARDING_STORAGE_KEY = "hot-air-balloon-onboarding-flags";
+
+// Onboarding message types
+export const ONBOARDING_MESSAGES = {
+  GOLDEN_BALLOONS: "goldenBalloons",
+  FIRST_UPGRADE: "firstUpgrade",
+  SHOP_OPENED: "shopOpened",
+  ENERGY_REACHED: "energyReached",
+  FIRST_ENEMY: "firstEnemy",
+  SECOND_LAYER: "secondLayer",
+  LAVA_WARNING: "lavaWarning",
 };
 
-// Fight-specific instructions
-const FIGHT_INSTRUCTIONS = {
-  1: {
-    title: "Fight 1: Basics",
-    text: "I gotta watch the clanker's pose and select the correct counter before he attacks. Clankers still booting up so I should have 10 seconds per move.",
+// Message content
+const MESSAGE_CONTENT = {
+  [ONBOARDING_MESSAGES.GOLDEN_BALLOONS]: {
+    title: "Collect Coins!",
+    text: "Click on golden balloons to collect them",
   },
-  2: {
-    title: "Fight 2: More Attacks",
-    text: "That time crystal is INCREDIBLE, but also a pain in my ass! Gotta keep kicking butt until it runs out of juice - looks like I got 8 seconds now.",
+  [ONBOARDING_MESSAGES.FIRST_UPGRADE]: {
+    title: "Upgrade Time!",
+    text: "Spend your coins on upgrades for your balloon",
   },
-  3: {
-    title: "Fight 3: Speed Up",
-    text: "Things are heating up with only 5 seconds to counter each move. I think the crystal energy is running low though, I have this bucket of bolts in my sights now!",
+  [ONBOARDING_MESSAGES.SHOP_OPENED]: {
+    title: "Energy Building",
+    text: "Buy the energy building to build up the energy needed to escape the lava",
   },
-  4: {
-    title: "Fight 4: Final Battle",
-    text: "This is it - the final showdown! Only 3 seconds per move and the enemy has 8 HP. I gotta stay focused and counter perfectly to win!",
+  [ONBOARDING_MESSAGES.ENERGY_REACHED]: {
+    title: "Use Energy!",
+    text: "Click and hold on your balloon to spend energy to go up!",
   },
-  infinite: {
-    title: "Infinite Mode",
-    text: "Welcome to Infinite Mode! The correct defence for each of the enemy's attack has been randomized. Survive as long as you can!",
+  [ONBOARDING_MESSAGES.FIRST_ENEMY]: {
+    title: "Enemy Spotted!",
+    text: "Buy the auto-attack to fight back or use energy to escape",
+  },
+  [ONBOARDING_MESSAGES.SECOND_LAYER]: {
+    title: "Journey to Space",
+    text: "Travel through all 4 layers to reach space and escape",
+  },
+  [ONBOARDING_MESSAGES.LAVA_WARNING]: {
+    title: "Lava Rising!",
+    text: "Use energy to go up to avoid the lava",
   },
 };
 
@@ -40,6 +68,9 @@ let onCloseCallback = null;
 
 // Track if event listeners have been initialized
 let eventListenersInitialized = false;
+
+// Callback to pause/unpause game
+let pauseGameCallback = null;
 
 // Helper function to add both click and touch event listeners
 function addTouchAndClickListener(element, handler) {
@@ -72,56 +103,96 @@ function addTouchAndClickListener(element, handler) {
 }
 
 // Initialize onboarding system
-export function initOnboarding() {
+export function initOnboarding(pauseCallback) {
   // Only add event listeners once to prevent duplicates
   if (eventListenersInitialized) return;
 
-  addTouchAndClickListener(elements.closeBtn, closePopup);
-  addTouchAndClickListener(elements.overlay, closePopup);
+  pauseGameCallback = pauseCallback;
+
+  const els = getElements();
+  addTouchAndClickListener(els.closeBtn, closePopup);
+  addTouchAndClickListener(els.overlay, closePopup);
 
   eventListenersInitialized = true;
 }
 
-// Check if we should show onboarding for this fight
-export function checkAndShowOnboarding(fightLevel, callback) {
-  if (isFirstTime(fightLevel)) {
-    showOnboarding(fightLevel, callback);
-    markFightAsSeen(fightLevel);
-  } else if (callback) {
-    // Not first time, just run the callback immediately
-    callback();
-  }
+// Get onboarding flags from localStorage
+function getOnboardingFlags() {
+  const flags = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+  return flags ? JSON.parse(flags) : {};
 }
 
-// Show onboarding popup for a specific fight
-function showOnboarding(fightLevel, callback) {
-  const instruction = FIGHT_INSTRUCTIONS[fightLevel];
+// Mark an onboarding message as seen
+function markMessageAsSeen(messageType) {
+  const flags = getOnboardingFlags();
+  flags[messageType] = true;
+  localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(flags));
+}
 
-  if (!instruction) {
+// Check if a message has been seen
+function hasSeenMessage(messageType) {
+  const flags = getOnboardingFlags();
+  return flags[messageType] === true;
+}
+
+// Show onboarding message if not seen before
+export function showOnboardingMessage(messageType, callback) {
+  // Check if this message has already been shown
+  if (hasSeenMessage(messageType)) {
     if (callback) callback();
-    return;
+    return false;
+  }
+
+  const content = MESSAGE_CONTENT[messageType];
+  if (!content) {
+    console.warn(`Unknown onboarding message type: ${messageType}`);
+    if (callback) callback();
+    return false;
+  }
+
+  // Pause the game
+  if (pauseGameCallback) {
+    pauseGameCallback(true);
   }
 
   // Store the callback to run when popup closes
   onCloseCallback = callback;
 
+  const els = getElements();
+
   // Set content
-  elements.title.textContent = instruction.title;
-  elements.text.textContent = instruction.text;
+  els.title.textContent = content.title;
+  els.text.textContent = content.text;
 
   // Show popup
-  elements.overlay.style.display = "block";
-  elements.popup.style.display = "block";
+  els.overlay.style.display = "block";
+  els.popup.style.display = "block";
+
+  // Mark as seen
+  markMessageAsSeen(messageType);
+
+  return true;
 }
 
 // Close popup
 function closePopup() {
-  elements.overlay.style.display = "none";
-  elements.popup.style.display = "none";
+  const els = getElements();
+  els.overlay.style.display = "none";
+  els.popup.style.display = "none";
+
+  // Resume the game
+  if (pauseGameCallback) {
+    pauseGameCallback(false);
+  }
 
   // Run the callback if exists
   if (onCloseCallback) {
     onCloseCallback();
     onCloseCallback = null;
   }
+}
+
+// Reset all onboarding progress (for testing)
+export function resetOnboarding() {
+  localStorage.removeItem(ONBOARDING_STORAGE_KEY);
 }

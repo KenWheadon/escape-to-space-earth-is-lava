@@ -125,4 +125,6 @@ export function resetAllProgress() {
   localStorage.removeItem(STORAGE_KEYS.FIRST_TIME_FLAGS);
   localStorage.removeItem(STORAGE_KEYS.INFINITE_HIGH_SCORE);
   localStorage.removeItem(STORAGE_KEYS.STORY_SEEN);
+  // Also reset onboarding
+  localStorage.removeItem("hot-air-balloon-onboarding-flags");
 }

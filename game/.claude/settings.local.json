@@ -7,7 +7,8 @@
       "Bash(start chrome index.html)",
       "Bash(findstr:*)",
       "Bash(echo:*)",
-      "Bash(\"c:\\Users\\kenne\\OneDrive\\Documents\\GitHub\\hot-air-balloon-escapes-to-space\\game\\styles.css\")"
+      "Bash(\"c:\\Users\\kenne\\OneDrive\\Documents\\GitHub\\hot-air-balloon-escapes-to-space\\game\\styles.css\")",
+      "Bash(start index.html)"
     ],
     "deny": [],
     "ask": []

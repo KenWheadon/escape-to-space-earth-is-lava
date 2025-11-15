@@ -3,6 +3,11 @@
 import { audioManager } from "./audio-manager.js";
 import { GameOverScreen } from "./game-over-screen.js";
 import { GAME_CONFIG } from "./config.js";
+import {
+  initOnboarding,
+  showOnboardingMessage,
+  ONBOARDING_MESSAGES,
+} from "./onboarding.js";
 
 // Game state
 let gameState = {
@@ -55,6 +60,17 @@ let gameState = {
 
   // Shop state
   shopOpen: false,
+
+  // Onboarding tracking
+  onboardingShown: {
+    goldenBalloons: false,
+    firstUpgrade: false,
+    shopOpened: false,
+    energyReached: false,
+    firstEnemy: false,
+    secondLayer: false,
+    lavaWarning: false,
+  },
 };
 
 // Game over screen manager
@@ -390,14 +406,30 @@ export function initGame() {
       HEALTH: 0,
       MAGNET_STRENGTH: 0,
       BALLOON_VALUE: 0,
-      ENERGY_PRODUCTION: 0,
+      ENERGY_PRODUCTION: 1,
     },
 
     shopOpen: false,
+
+    // Onboarding tracking
+    onboardingShown: {
+      goldenBalloons: false,
+      firstUpgrade: false,
+      shopOpened: false,
+      energyReached: false,
+      firstEnemy: false,
+      secondLayer: false,
+      lavaWarning: false,
+    },
   };
 
   // Create UI
   createGameUI();
+
+  // Initialize onboarding system with pause callback
+  initOnboarding((shouldPause) => {
+    gameState.isPaused = shouldPause;
+  });
 
   // Initialize game over screen
   if (!gameOverScreen) {
@@ -447,6 +479,12 @@ export function initGame() {
 
   // Start game loop
   startGameLoop();
+
+  // Show first-time golden balloon message
+  if (!gameState.onboardingShown.goldenBalloons) {
+    gameState.onboardingShown.goldenBalloons = true;
+    showOnboardingMessage(ONBOARDING_MESSAGES.GOLDEN_BALLOONS);
+  }
 }
 
 // Setup game-specific event listeners
@@ -561,6 +599,12 @@ function openShop() {
   gameState.isPaused = true;
   document.getElementById("shop-panel").classList.remove("hidden");
   updateShopDisplay();
+
+  // Show shop onboarding message on first shop open
+  if (!gameState.onboardingShown.shopOpened) {
+    gameState.onboardingShown.shopOpened = true;
+    showOnboardingMessage(ONBOARDING_MESSAGES.SHOP_OPENED);
+  }
 }
 
 // Close shop
@@ -622,6 +666,15 @@ function updateGame() {
       GAME_CONFIG.ENERGY_MAX,
       gameState.energy + production / 60 // Drastically reduce per-frame production
     );
+
+    // Show energy usage message when player has 10+ energy for the first time
+    if (
+      !gameState.onboardingShown.energyReached &&
+      gameState.energy >= 10
+    ) {
+      gameState.onboardingShown.energyReached = true;
+      showOnboardingMessage(ONBOARDING_MESSAGES.ENERGY_REACHED);
+    }
   }
 
   // Gold production
@@ -653,6 +706,24 @@ function updateGame() {
   if (gameState.player.altitude >= GAME_CONFIG.SPACE_ALTITUDE) {
     handleWin();
     return;
+  }
+
+  // Check if player reached second layer (Stratosphere)
+  const currentLayer = getCurrentCloudLayer();
+  if (!gameState.onboardingShown.secondLayer && currentLayer >= 1) {
+    gameState.onboardingShown.secondLayer = true;
+    showOnboardingMessage(ONBOARDING_MESSAGES.SECOND_LAYER);
+  }
+
+  // Check if lava is getting close (within 100m of player altitude)
+  // Only show if player has been playing for at least 30 seconds
+  if (
+    !gameState.onboardingShown.lavaWarning &&
+    timeSinceStart > 30 &&
+    gameState.player.altitude - lavaAltitude < 100
+  ) {
+    gameState.onboardingShown.lavaWarning = true;
+    showOnboardingMessage(ONBOARDING_MESSAGES.LAVA_WARNING);
   }
 
   // Spawn golden balloons
@@ -801,6 +872,12 @@ function spawnEnemy() {
   };
 
   gameState.enemies.push(enemy);
+
+  // Show enemy message on first enemy spawn
+  if (!gameState.onboardingShown.firstEnemy) {
+    gameState.onboardingShown.firstEnemy = true;
+    showOnboardingMessage(ONBOARDING_MESSAGES.FIRST_ENEMY);
+  }
 }
 
 // Update enemies
@@ -1206,6 +1283,12 @@ function updateUI() {
   if (shopBtn) {
     if (canAffordAnyUpgrade()) {
       shopBtn.classList.add("shop-btn-affordable");
+
+      // Show first upgrade message when player can afford something
+      if (!gameState.onboardingShown.firstUpgrade) {
+        gameState.onboardingShown.firstUpgrade = true;
+        showOnboardingMessage(ONBOARDING_MESSAGES.FIRST_UPGRADE);
+      }
     } else {
       shopBtn.classList.remove("shop-btn-affordable");
     }
