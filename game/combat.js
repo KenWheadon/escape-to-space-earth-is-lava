@@ -118,6 +118,9 @@ function createGameUI() {
       <!-- Lava -->
       <div id="lava"></div>
 
+      <!-- Magnet radius indicator -->
+      <div id="magnet-radius"></div>
+
       <!-- Player balloon -->
       <div id="player-balloon">
         <img src="images/hot-air-balloon.png" alt="Player Balloon">
@@ -261,6 +264,11 @@ function purchaseBuilding(buildingKey) {
 
 // Initialize game
 export function initGame() {
+  // Clear entity DOM cache
+  entityDOMCache.lasers.clear();
+  entityDOMCache.goldenBalloons.clear();
+  entityDOMCache.enemies.clear();
+
   // Reset game state
   gameState = {
     gameStartTime: Date.now(),
@@ -358,6 +366,7 @@ function setupGameEventListeners() {
   const playerBalloon = document.getElementById('player-balloon');
   const shopBtn = document.getElementById('shop-btn');
   const shopCloseBtn = document.getElementById('shop-close-btn');
+  const entitiesContainer = document.getElementById('game-entities');
 
   // Player balloon click and hold
   let holdInterval;
@@ -400,6 +409,29 @@ function setupGameEventListeners() {
       const button = e.target.closest('.shop-buy-btn');
       const buildingKey = button.dataset.building;
       purchaseBuilding(buildingKey);
+    }
+  });
+
+  // Golden balloon click handler using event delegation
+  entitiesContainer.addEventListener('click', (e) => {
+    const balloonEl = e.target.closest('.golden-balloon');
+    if (balloonEl) {
+      const balloonId = balloonEl.dataset.balloonId;
+      if (balloonId) {
+        collectBalloonById(parseFloat(balloonId));
+      }
+    }
+  });
+
+  // Touch handler for golden balloons
+  entitiesContainer.addEventListener('touchend', (e) => {
+    const balloonEl = e.target.closest('.golden-balloon');
+    if (balloonEl) {
+      e.preventDefault();
+      const balloonId = balloonEl.dataset.balloonId;
+      if (balloonId) {
+        collectBalloonById(parseFloat(balloonId));
+      }
     }
   });
 }
@@ -753,6 +785,19 @@ function renderGame() {
     playerBalloon.style.top = gameState.player.y + 'px'; // Fixed vertical position
   }
 
+  // Update magnet radius indicator
+  const magnetRadius = document.getElementById('magnet-radius');
+  if (magnetRadius) {
+    const magnetRange = GAME_CONFIG.STARTING_MAGNET_RANGE +
+      (gameState.buildings.MAGNET_STRENGTH * GAME_CONFIG.BUILDINGS.MAGNET_STRENGTH.rangeIncrease);
+    const radiusSize = magnetRange * 2; // Diameter = radius * 2
+
+    magnetRadius.style.left = gameState.player.x + 'px';
+    magnetRadius.style.top = gameState.player.y + 'px';
+    magnetRadius.style.width = radiusSize + 'px';
+    magnetRadius.style.height = radiusSize + 'px';
+  }
+
   // Calculate background offset based on altitude (convert altitude meters to pixels for display)
   const altitudeOffset = gameState.player.altitude * 2; // Scale for visual effect
 
@@ -776,17 +821,30 @@ function renderGame() {
   renderEntities();
 }
 
+// Track DOM elements for entities to avoid recreating them every frame
+const entityDOMCache = {
+  lasers: new Map(),
+  goldenBalloons: new Map(),
+  enemies: new Map(),
+};
+
 // Render all entities (golden balloons, enemies, lasers)
 function renderEntities() {
   const entitiesContainer = document.getElementById('game-entities');
 
-  // Clear existing entities
-  entitiesContainer.innerHTML = '';
-
-  // Render lasers
+  // Render lasers - update existing or create new
+  const currentLaserIds = new Set();
   gameState.lasers.forEach(laser => {
-    const laserEl = document.createElement('div');
-    laserEl.className = 'laser';
+    currentLaserIds.add(laser.id);
+
+    let laserEl = entityDOMCache.lasers.get(laser.id);
+    if (!laserEl) {
+      // Create new laser element
+      laserEl = document.createElement('div');
+      laserEl.className = 'laser';
+      entityDOMCache.lasers.set(laser.id, laserEl);
+      entitiesContainer.appendChild(laserEl);
+    }
 
     // Calculate angle and length
     const dx = laser.endX - laser.startX;
@@ -794,42 +852,78 @@ function renderEntities() {
     const angle = Math.atan2(dy, dx) * 180 / Math.PI;
     const length = Math.sqrt(dx * dx + dy * dy);
 
+    // Update position and rotation
     laserEl.style.left = laser.startX + 'px';
     laserEl.style.top = laser.startY + 'px';
     laserEl.style.width = length + 'px';
     laserEl.style.transform = `rotate(${angle}deg)`;
     laserEl.style.transformOrigin = '0 50%';
-
-    entitiesContainer.appendChild(laserEl);
   });
 
-  // Render golden balloons
+  // Remove lasers that no longer exist
+  entityDOMCache.lasers.forEach((laserEl, id) => {
+    if (!currentLaserIds.has(id)) {
+      laserEl.remove();
+      entityDOMCache.lasers.delete(id);
+    }
+  });
+
+  // Render golden balloons - update existing or create new
+  const currentBalloonIds = new Set();
   gameState.goldenBalloons.forEach(balloon => {
-    const balloonEl = document.createElement('div');
-    balloonEl.className = 'golden-balloon';
+    currentBalloonIds.add(balloon.id);
+
+    let balloonEl = entityDOMCache.goldenBalloons.get(balloon.id);
+    if (!balloonEl) {
+      // Create new balloon element
+      balloonEl = document.createElement('div');
+      balloonEl.className = 'golden-balloon';
+      balloonEl.style.cursor = 'pointer';
+      balloonEl.innerHTML = '<img src="images/golden-balloon.png" alt="Golden Balloon">';
+      balloonEl.dataset.balloonId = balloon.id;
+      entityDOMCache.goldenBalloons.set(balloon.id, balloonEl);
+      entitiesContainer.appendChild(balloonEl);
+    }
+
+    // Update position
     balloonEl.style.left = balloon.x + 'px';
     balloonEl.style.top = balloon.y + 'px';
-    balloonEl.style.cursor = 'pointer';
-    balloonEl.innerHTML = '<img src="images/golden-balloon.png" alt="Golden Balloon">';
-    balloonEl.dataset.balloonId = balloon.id;
-
-    // Add click listener to collect balloon
-    addTouchAndClickListener(balloonEl, (e) => {
-      e.stopPropagation();
-      collectBalloonById(balloon.id);
-    });
-
-    entitiesContainer.appendChild(balloonEl);
   });
 
-  // Render enemies
+  // Remove balloons that no longer exist
+  entityDOMCache.goldenBalloons.forEach((balloonEl, id) => {
+    if (!currentBalloonIds.has(id)) {
+      balloonEl.remove();
+      entityDOMCache.goldenBalloons.delete(id);
+    }
+  });
+
+  // Render enemies - update existing or create new
+  const currentEnemyIds = new Set();
   gameState.enemies.forEach(enemy => {
-    const enemyEl = document.createElement('div');
-    enemyEl.className = 'enemy-balloon';
+    currentEnemyIds.add(enemy.id);
+
+    let enemyEl = entityDOMCache.enemies.get(enemy.id);
+    if (!enemyEl) {
+      // Create new enemy element
+      enemyEl = document.createElement('div');
+      enemyEl.className = 'enemy-balloon';
+      enemyEl.innerHTML = `<img src="images/${enemy.image}" alt="Enemy Balloon">`;
+      entityDOMCache.enemies.set(enemy.id, enemyEl);
+      entitiesContainer.appendChild(enemyEl);
+    }
+
+    // Update position
     enemyEl.style.left = enemy.x + 'px';
     enemyEl.style.top = enemy.y + 'px';
-    enemyEl.innerHTML = `<img src="images/${enemy.image}" alt="Enemy Balloon">`;
-    entitiesContainer.appendChild(enemyEl);
+  });
+
+  // Remove enemies that no longer exist
+  entityDOMCache.enemies.forEach((enemyEl, id) => {
+    if (!currentEnemyIds.has(id)) {
+      enemyEl.remove();
+      entityDOMCache.enemies.delete(id);
+    }
   });
 }
 
