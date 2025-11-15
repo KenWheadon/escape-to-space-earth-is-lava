@@ -50,6 +50,16 @@
   opacity: 0.9;
   pointer-events: none;
   z-index: 1;
+  animation: cloudFloat 60s linear infinite;
+}
+
+@keyframes cloudFloat {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 300px 0;
+  }
 }
 
 #cloud-layer-1 {
@@ -76,17 +86,45 @@
   height: 200px;
   background: linear-gradient(to bottom, #ff4400 0%, #ff0000 50%, #cc0000 100%);
   border-top: var(--border-thick) solid #ff6600;
-  box-shadow: 0 -10px 30px rgba(255, 68, 0, 0.6);
+  box-shadow: 0 -10px 30px rgba(255, 68, 0, 0.6), 0 -5px 60px rgba(255, 100, 0, 0.4);
   z-index: 10;
   animation: lavaGlow 2s ease-in-out infinite alternate;
+  position: relative;
+  overflow: hidden;
+}
+
+#lava::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 300%;
+  height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 0, 0.2) 25%,
+    transparent 50%,
+    rgba(255, 255, 0, 0.2) 75%,
+    transparent 100%
+  );
+  animation: lavaFlow 8s linear infinite;
 }
 
 @keyframes lavaGlow {
   from {
-    box-shadow: 0 -10px 30px rgba(255, 68, 0, 0.6);
+    box-shadow: 0 -10px 30px rgba(255, 68, 0, 0.6), 0 -5px 60px rgba(255, 100, 0, 0.4);
   }
   to {
-    box-shadow: 0 -10px 50px rgba(255, 68, 0, 0.9);
+    box-shadow: 0 -10px 50px rgba(255, 68, 0, 0.9), 0 -5px 80px rgba(255, 100, 0, 0.6);
+  }
+}
+
+@keyframes lavaFlow {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(33.333%);
   }
 }
 
@@ -110,15 +148,17 @@
   z-index: 6;
   pointer-events: auto;
   transform: translate(-50%, -50%);
-  transition: filter 0.1s;
+  transition: all 0.15s ease;
 }
 
 #player-balloon:hover {
-  filter: brightness(1.1);
+  filter: brightness(1.15) drop-shadow(0 0 10px rgba(0, 255, 255, 0.5));
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 #player-balloon:active {
-  filter: brightness(1.2);
+  filter: brightness(1.25) drop-shadow(0 0 15px rgba(0, 255, 255, 0.8));
+  transform: translate(-50%, -50%) scale(0.98);
 }
 
 #player-balloon img {
@@ -168,7 +208,7 @@
   animation: bobFloat 2s ease-in-out infinite;
   pointer-events: auto;
   cursor: pointer;
-  transition: filter 0.1s;
+  transition: all 0.2s ease;
   background: radial-gradient(
     circle,
     rgba(255, 215, 0, 0.5) 0%,
@@ -178,15 +218,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
 }
 
 .golden-balloon:hover {
-  filter: brightness(1.2);
+  filter: brightness(1.3);
+  transform: translate(-50%, -50%) scale(1.1);
   background: radial-gradient(
     circle,
-    rgba(255, 215, 0, 0.6) 0%,
+    rgba(255, 215, 0, 0.7) 0%,
     transparent 70%
   );
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
 }
 
 .golden-balloon img {
@@ -225,11 +268,12 @@
 /* Lasers */
 .laser {
   position: absolute;
-  height: 4px;
-  background: linear-gradient(to right, #00ffff, #ffffff, #00ffff);
-  box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+  height: 5px;
+  background: linear-gradient(to right, transparent, #00ffff 20%, #ffffff 50%, #00ffff 80%, transparent);
+  box-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff, 0 0 5px #ffffff;
   pointer-events: none;
-  animation: laserPulse 0.1s ease-in-out infinite;
+  animation: laserPulse 0.1s ease-in-out infinite, laserGlow 0.3s ease-in-out infinite;
+  border-radius: 2px;
 }
 
 @keyframes laserPulse {
@@ -239,6 +283,15 @@
   }
   50% {
     opacity: 0.7;
+  }
+}
+
+@keyframes laserGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px #00ffff, 0 0 30px #00ffff, 0 0 5px #ffffff;
+  }
+  50% {
+    box-shadow: 0 0 25px #00ffff, 0 0 50px #00ffff, 0 0 10px #ffffff;
   }
 }
 
@@ -663,5 +716,343 @@
 #dev-spawn-enemy-btn:active {
   box-shadow: var(--shadow-brutal-active);
   transform: translateY(2px);
+}
+
+/* ========================================
+   JUICE & FEEDBACK ANIMATIONS
+   ======================================== */
+
+/* Screen shake for impacts */
+@keyframes screenShake {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-5px, 2px); }
+  20% { transform: translate(5px, -2px); }
+  30% { transform: translate(-3px, 4px); }
+  40% { transform: translate(3px, -4px); }
+  50% { transform: translate(-2px, 2px); }
+  60% { transform: translate(2px, -2px); }
+  70% { transform: translate(-4px, 1px); }
+  80% { transform: translate(4px, -1px); }
+  90% { transform: translate(-1px, 3px); }
+}
+
+.screen-shake {
+  animation: screenShake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Flash overlay for damage */
+#damage-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 0, 0, 0.5);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 100;
+}
+
+@keyframes damageFlash {
+  0% { opacity: 0; }
+  20% { opacity: 0.6; }
+  40% { opacity: 0; }
+  60% { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+
+.damage-flash-active {
+  animation: damageFlash 0.6s ease-out;
+}
+
+/* Success flash for purchases/victories */
+#success-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 255, 0, 0.3);
+  pointer-events: none;
+  opacity: 0;
+  z-index: 100;
+}
+
+@keyframes successFlash {
+  0% { opacity: 0; }
+  30% { opacity: 0.5; }
+  100% { opacity: 0; }
+}
+
+.success-flash-active {
+  animation: successFlash 0.5s ease-out;
+}
+
+/* Particle effect container */
+.particle {
+  position: absolute;
+  pointer-events: none;
+  z-index: 50;
+}
+
+/* Rising particle trail */
+.rising-particle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 4;
+  animation: risingParticleFade 0.6s ease-out forwards;
+}
+
+@keyframes risingParticleFade {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(30px) scale(0.2);
+    opacity: 0;
+  }
+}
+
+/* Coin particle sparkle */
+@keyframes coinSparkle {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translateY(-60px) scale(1.5) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.coin-sparkle {
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, #ffd700, #ffed4e);
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ffd700;
+  animation: coinSparkle 0.8s ease-out forwards;
+}
+
+/* Rising text for feedback */
+@keyframes risingText {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-30px) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-60px) scale(1);
+    opacity: 0;
+  }
+}
+
+.rising-text {
+  position: absolute;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffd700;
+  text-shadow: 3px 3px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000;
+  pointer-events: none;
+  z-index: 60;
+  animation: risingText 1s ease-out forwards;
+}
+
+/* Explosion particles */
+@keyframes explode {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+.explosion-particle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--color);
+  border-radius: 50%;
+  animation: explode 0.8s ease-out forwards;
+}
+
+/* Squash and stretch for player balloon */
+@keyframes balloonSquash {
+  0%, 100% { transform: translate(-50%, -50%) scaleX(1) scaleY(1); }
+  50% { transform: translate(-50%, -50%) scaleX(0.9) scaleY(1.1); }
+}
+
+.balloon-squash {
+  animation: balloonSquash 0.3s ease-in-out;
+}
+
+/* Pulse effect for player when holding */
+@keyframes balloonPulse {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.3));
+  }
+  50% {
+    filter: brightness(1.3) drop-shadow(0 0 20px rgba(0, 255, 255, 0.8));
+  }
+}
+
+#player-balloon.rising {
+  animation: balloonPulse 0.5s ease-in-out infinite;
+}
+
+/* Pop animation for golden balloon collection */
+@keyframes balloonPop {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+}
+
+.balloon-pop {
+  animation: balloonPop 0.3s ease-out forwards;
+}
+
+/* Enemy defeat explosion */
+@keyframes enemyExplosion {
+  0% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.4) rotate(180deg);
+    opacity: 1;
+    filter: brightness(2) hue-rotate(180deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0) rotate(360deg);
+    opacity: 0;
+    filter: brightness(3) hue-rotate(360deg);
+  }
+}
+
+.enemy-explode {
+  animation: enemyExplosion 0.6s ease-out forwards;
+}
+
+/* Shop button pulse when affordable */
+@keyframes shopPulse {
+  0%, 100% {
+    box-shadow: var(--shadow-brutal);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: var(--shadow-brutal), 0 0 20px rgba(0, 255, 0, 0.8);
+    filter: brightness(1.2);
+  }
+}
+
+#shop-btn.affordable {
+  animation: shopPulse 1.5s ease-in-out infinite;
+}
+
+/* Milestone celebration */
+@keyframes milestoneCelebrate {
+  0% {
+    transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.milestone-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(45deg, #ff0033, #ffff00, #00ff00, #00ffff);
+  padding: 30px 50px;
+  border: 8px solid #000;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.8), 12px 12px 0px #000;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  z-index: 200;
+  pointer-events: none;
+  animation: milestoneCelebrate 0.8s cubic-bezier(.68,-0.55,.27,1.55);
+}
+
+/* Energy bar glow when full */
+@keyframes energyGlow {
+  0%, 100% {
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: inset 0 0 20px rgba(0, 255, 255, 1), 0 0 20px rgba(0, 255, 255, 0.8);
+  }
+}
+
+#energy-bar-fill.full {
+  animation: energyGlow 1s ease-in-out infinite;
+}
+
+/* Layer transition effect */
+@keyframes layerTransition {
+  0% {
+    opacity: 0.3;
+    filter: blur(5px) brightness(2);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0px) brightness(1);
+  }
+}
+
+.cloud-layer.transitioning {
+  animation: layerTransition 1s ease-out;
+}
+
+/* Coin counter bounce */
+@keyframes coinBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+
+.coin-bounce {
+  animation: coinBounce 0.3s ease-in-out;
+}
+
+/* Health loss shake */
+@keyframes healthShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.health-shake {
+  animation: healthShake 0.2s ease-in-out;
 }
 }

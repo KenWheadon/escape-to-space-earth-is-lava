@@ -8,6 +8,24 @@ import {
   showOnboardingMessage,
   ONBOARDING_MESSAGES,
 } from "./onboarding.js";
+import {
+  createExplosion,
+  createCoinSparkles,
+  createRisingText,
+  screenShake,
+  damageFlash,
+  successFlash,
+  balloonPopAnimation,
+  enemyExplosionAnimation,
+  balloonSquash,
+  setPlayerRising,
+  coinBounce,
+  healthShake,
+  updateEnergyGlow,
+  updateShopAffordable,
+  showMilestoneBadge,
+  layerTransition,
+} from "./feedback-effects.js";
 
 // Game state
 let gameState = {
@@ -71,6 +89,9 @@ let gameState = {
     secondLayer: false,
     lavaWarning: false,
   },
+
+  // Track current layer for celebrations
+  currentLayerIndex: 0,
 };
 
 // Game over screen manager
@@ -346,7 +367,11 @@ function purchaseBuilding(buildingKey) {
       );
     }
 
+    // Celebration feedback!
     audioManager.playSoundEffect("btnClick");
+    successFlash();
+    createRisingText(400, 300, "UPGRADED!", "#00ff00");
+
     updateUI();
     updateShopDisplay();
   }
@@ -652,6 +677,11 @@ function updateGame() {
       gameState.energy - GAME_CONFIG.ENERGY_RISE_COST
     );
     riseAmount = riseSpeed;
+
+    // Visual feedback for rising
+    setPlayerRising(true);
+  } else {
+    setPlayerRising(false);
   }
 
   // Energy production
@@ -713,6 +743,14 @@ function updateGame() {
   if (!gameState.onboardingShown.secondLayer && currentLayer >= 1) {
     gameState.onboardingShown.secondLayer = true;
     showOnboardingMessage(ONBOARDING_MESSAGES.SECOND_LAYER);
+  }
+
+  // Celebrate layer transitions!
+  if (currentLayer > gameState.currentLayerIndex) {
+    const layerName = GAME_CONFIG.CLOUD_LAYERS[currentLayer].name;
+    showMilestoneBadge(`${layerName}!`, 2000);
+    layerTransition(currentLayer);
+    gameState.currentLayerIndex = currentLayer;
   }
 
   // Check if lava is getting close (within 100m of player altitude)
@@ -791,7 +829,7 @@ function updateGoldenBalloons(riseAmount) {
     const distance = Math.sqrt(dx * dx + dy * dy);
 
     if (distance <= magnetRange) {
-      collectGoldenBalloon();
+      collectGoldenBalloon(balloon.x, balloon.y);
       return false;
     }
 
@@ -805,13 +843,18 @@ function updateGoldenBalloons(riseAmount) {
 }
 
 // Collect golden balloon
-function collectGoldenBalloon() {
+function collectGoldenBalloon(x = gameState.player.x, y = gameState.player.y) {
   const value =
     GAME_CONFIG.STARTING_BALLOON_VALUE +
     gameState.buildings.BALLOON_VALUE *
       GAME_CONFIG.BUILDINGS.BALLOON_VALUE.valueIncrease;
   gameState.coins += value;
+
+  // Visual and audio feedback
   audioManager.playSoundEffect("btnClick");
+  createCoinSparkles(x, y, 8);
+  createRisingText(x, y, `+${value}`, "#ffd700");
+  coinBounce();
 }
 
 // Collect golden balloon by ID (when clicked)
@@ -994,6 +1037,13 @@ function updateLasers(now) {
 function defeatEnemy(enemy) {
   const index = gameState.enemies.indexOf(enemy);
   if (index > -1) {
+    // Amazing visual feedback!
+    screenShake();
+    createExplosion(enemy.x, enemy.y, "#ff0033", 16);
+    createExplosion(enemy.x, enemy.y, "#ffff00", 12);
+    createExplosion(enemy.x, enemy.y, "#00ff00", 8);
+    createRisingText(enemy.x, enemy.y - 30, "DEFEATED!", "#ff0033");
+
     gameState.enemies.splice(index, 1);
     dropGoldenBalloonsFromEnemy(enemy.x, enemy.y);
   }
@@ -1020,7 +1070,13 @@ function damagePlayer(damage) {
     gameState.player.altitude - GAME_CONFIG.DAMAGE_KNOCKBACK * 0.5
   );
 
+  // Intense damage feedback!
   audioManager.playSoundEffect("playerDamage");
+  screenShake();
+  damageFlash();
+  healthShake();
+  balloonSquash(document.getElementById("player-balloon"));
+  createRisingText(gameState.player.x, gameState.player.y - 50, `-${damage} HP`, "#ff0033");
 
   if (gameState.player.health <= 0) {
     handleLose();
@@ -1224,6 +1280,9 @@ function updateUI() {
     gameState.energy
   )}/${GAME_CONFIG.ENERGY_MAX}`;
 
+  // Add glow effect when energy is full
+  updateEnergyGlow(energyPercent >= 100);
+
   // Update altitude
   const altitude = Math.floor(gameState.player.altitude);
   document.getElementById("altitude-value").textContent = altitude + "m";
@@ -1281,7 +1340,10 @@ function updateUI() {
   // Update shop button animation if an upgrade is affordable
   const shopBtn = document.getElementById("shop-btn");
   if (shopBtn) {
-    if (canAffordAnyUpgrade()) {
+    const canAfford = canAffordAnyUpgrade();
+    updateShopAffordable(canAfford);
+
+    if (canAfford) {
       shopBtn.classList.add("shop-btn-affordable");
 
       // Show first upgrade message when player can afford something
