@@ -8,7 +8,7 @@
   width: 800px;
   height: 600px;
   overflow: hidden;
-  background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+  background: linear-gradient(to bottom, #87ceeb 0%, #e0f6ff 100%);
   border: var(--border-thick) solid #000000;
   box-shadow: var(--shadow-brutal);
 }
@@ -20,7 +20,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, #001440 0%, #87CEEB 50%, #E0F6FF 100%);
+  background: linear-gradient(to bottom, #001440 0%, #87ceeb 50%, #e0f6ff 100%);
   z-index: 0;
 }
 
@@ -30,10 +30,21 @@
   left: 0;
   width: 100%;
   height: 80px;
-  background-image:
-    radial-gradient(ellipse 100px 40px at 20% 50%, rgba(255, 255, 255, 0.8), transparent),
-    radial-gradient(ellipse 120px 50px at 50% 50%, rgba(255, 255, 255, 0.8), transparent),
-    radial-gradient(ellipse 100px 40px at 80% 50%, rgba(255, 255, 255, 0.8), transparent);
+  background-image: radial-gradient(
+      ellipse 100px 40px at 20% 50%,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 120px 50px at 50% 50%,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    ),
+    radial-gradient(
+      ellipse 100px 40px at 80% 50%,
+      rgba(255, 255, 255, 0.8),
+      transparent
+    );
   background-size: 300px 80px;
   background-repeat: repeat-x;
   opacity: 0.9;
@@ -71,8 +82,12 @@
 }
 
 @keyframes lavaGlow {
-  from { box-shadow: 0 -10px 30px rgba(255, 68, 0, 0.6); }
-  to { box-shadow: 0 -10px 50px rgba(255, 68, 0, 0.9); }
+  from {
+    box-shadow: 0 -10px 30px rgba(255, 68, 0, 0.6);
+  }
+  to {
+    box-shadow: 0 -10px 50px rgba(255, 68, 0, 0.9);
+  }
 }
 
 /* Game Entities Container */
@@ -118,16 +133,23 @@
   position: absolute;
   border: 3px dashed rgba(255, 215, 0, 0.6);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 50%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.1) 0%,
+    rgba(255, 215, 0, 0.05) 50%,
+    transparent 70%
+  );
   pointer-events: none;
   z-index: 5;
   transform: translate(-50%, -50%);
   animation: magnetPulse 2s ease-in-out infinite;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(255, 215, 0, 0.2);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3),
+    inset 0 0 20px rgba(255, 215, 0, 0.2);
 }
 
 @keyframes magnetPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.7;
     border-color: rgba(255, 215, 0, 0.6);
   }
@@ -147,7 +169,11 @@
   pointer-events: auto;
   cursor: pointer;
   transition: filter 0.1s;
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.5) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.5) 0%,
+    transparent 70%
+  );
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -156,7 +182,11 @@
 
 .golden-balloon:hover {
   filter: brightness(1.2);
-  background: radial-gradient(circle, rgba(255, 215, 0, 0.6) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.6) 0%,
+    transparent 70%
+  );
 }
 
 .golden-balloon img {
@@ -167,8 +197,13 @@
 }
 
 @keyframes bobFloat {
-  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
-  50% { transform: translate(-50%, -50%) translateY(-5px); }
+  0%,
+  100% {
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  50% {
+    transform: translate(-50%, -50%) translateY(-5px);
+  }
 }
 
 /* Enemy Balloons */
@@ -198,8 +233,13 @@
 }
 
 @keyframes laserPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Game UI */
@@ -323,17 +363,31 @@
   text-align: center;
 }
 
-/* Cloud Layer Progress Bar */
-#cloud-progress-container {
+/* Right UI Container (for hover effect) */
+#right-ui-container {
   position: absolute;
   right: 15px;
   top: 50%;
   transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  flex-direction: row-reverse; /* Reverses visual order of children */
+  gap: 15px;
+  pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Cloud Layer Progress Bar */
+#cloud-progress-container {
+  /* position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%); */
   width: 50px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  pointer-events: auto; /* Re-enable pointer events for this container */
 }
 
 #cloud-progress-label {
@@ -385,15 +439,23 @@
 
 /* Altitude Display */
 #altitude-display {
-  position: absolute;
+  /* position: absolute;
   right: 80px;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-50%); */
   background: rgba(0, 0, 0, 0.7);
   padding: 15px 20px;
   border: var(--border-medium) solid #000000;
   box-shadow: var(--shadow-brutal);
   text-align: center;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  pointer-events: none; /* Prevent this element from being hovered */
+}
+
+/* Show altitude display only when hovering over the cloud progress bar */
+#cloud-progress-container:hover + #altitude-display {
+  opacity: 1;
 }
 
 #altitude-label {

@@ -152,20 +152,23 @@ function createGameUI() {
           <div id="energy-bar-text">0/100</div>
         </div>
 
-        <!-- Right Side: Cloud Layer Progress Bar -->
-        <div id="cloud-progress-container">
-          <div id="cloud-progress-label">LAYER</div>
-          <div id="cloud-layer-name">Troposphere</div>
-          <div id="cloud-progress-bg">
-            <div id="cloud-progress-fill"></div>
+        <!-- Right Side UI Container -->
+        <div id="right-ui-container">
+          <!-- Cloud Layer Progress Bar -->
+          <div id="cloud-progress-container">
+            <div id="cloud-progress-label">LAYER</div>
+            <div id="cloud-layer-name">Troposphere</div>
+            <div id="cloud-progress-bg">
+              <div id="cloud-progress-fill"></div>
+            </div>
+            <div id="cloud-progress-text">0%</div>
           </div>
-          <div id="cloud-progress-text">0%</div>
-        </div>
 
-        <!-- Altitude Display -->
-        <div id="altitude-display">
-          <div id="altitude-label">ALTITUDE</div>
-          <div id="altitude-value">0m</div>
+          <!-- Altitude Display -->
+          <div id="altitude-display">
+            <div id="altitude-label">ALTITUDE</div>
+            <div id="altitude-value">0m</div>
+          </div>
         </div>
       </div>
     </div>
@@ -189,15 +192,15 @@ function createGameUI() {
 
 // Generate shop items from config
 function generateShopItems() {
-  const shopItemsContainer = document.getElementById('shop-items');
+  const shopItemsContainer = document.getElementById("shop-items");
 
-  Object.keys(GAME_CONFIG.BUILDINGS).forEach(buildingKey => {
+  Object.keys(GAME_CONFIG.BUILDINGS).forEach((buildingKey) => {
     const building = GAME_CONFIG.BUILDINGS[buildingKey];
     const level = gameState.buildings[buildingKey];
     const cost = calculateBuildingCost(buildingKey);
 
-    const shopItem = document.createElement('div');
-    shopItem.className = 'shop-item';
+    const shopItem = document.createElement("div");
+    shopItem.className = "shop-item";
     shopItem.innerHTML = `
       <img src="images/${building.image}" alt="${building.name}" class="shop-item-icon">
       <div class="shop-item-info">
@@ -219,18 +222,26 @@ function generateShopItems() {
 function calculateBuildingCost(buildingKey) {
   const building = GAME_CONFIG.BUILDINGS[buildingKey];
   const level = gameState.buildings[buildingKey];
-  return Math.floor(building.baseCost * Math.pow(building.costMultiplier, level));
+  return Math.floor(
+    building.baseCost * Math.pow(building.costMultiplier, level)
+  );
 }
 
 // Update shop display
 function updateShopDisplay() {
-  Object.keys(GAME_CONFIG.BUILDINGS).forEach(buildingKey => {
+  Object.keys(GAME_CONFIG.BUILDINGS).forEach((buildingKey) => {
     const level = gameState.buildings[buildingKey];
     const cost = calculateBuildingCost(buildingKey);
 
-    const levelElement = document.querySelector(`.building-level[data-building="${buildingKey}"]`);
-    const costElement = document.querySelector(`.building-cost[data-building="${buildingKey}"]`);
-    const buyButton = document.querySelector(`.shop-buy-btn[data-building="${buildingKey}"]`);
+    const levelElement = document.querySelector(
+      `.building-level[data-building="${buildingKey}"]`
+    );
+    const costElement = document.querySelector(
+      `.building-cost[data-building="${buildingKey}"]`
+    );
+    const buyButton = document.querySelector(
+      `.shop-buy-btn[data-building="${buildingKey}"]`
+    );
 
     if (levelElement) levelElement.textContent = level;
     if (costElement) costElement.textContent = cost;
@@ -251,9 +262,12 @@ function purchaseBuilding(buildingKey) {
     gameState.buildings[buildingKey]++;
 
     // Apply building effects
-    if (buildingKey === 'HEALTH') {
+    if (buildingKey === "HEALTH") {
       gameState.player.maxHealth += GAME_CONFIG.BUILDINGS.HEALTH.healthIncrease;
-      gameState.player.health = Math.min(gameState.player.health + GAME_CONFIG.BUILDINGS.HEALTH.healthIncrease, gameState.player.maxHealth);
+      gameState.player.health = Math.min(
+        gameState.player.health + GAME_CONFIG.BUILDINGS.HEALTH.healthIncrease,
+        gameState.player.maxHealth
+      );
     }
 
     audioManager.playSoundEffect("btnClick");
@@ -339,11 +353,13 @@ export function initGame() {
     });
 
     // Add hover sound effects
-    [elements.pause, elements.pauseResumeBtn, elements.pauseQuitBtn].forEach((btn) => {
-      btn.addEventListener("mouseenter", () => {
-        audioManager.playSoundEffect("btnHover");
-      });
-    });
+    [elements.pause, elements.pauseResumeBtn, elements.pauseQuitBtn].forEach(
+      (btn) => {
+        btn.addEventListener("mouseenter", () => {
+          audioManager.playSoundEffect("btnHover");
+        });
+      }
+    );
 
     eventListenersInitialized = true;
   }
@@ -363,10 +379,10 @@ export function initGame() {
 
 // Setup game-specific event listeners
 function setupGameEventListeners() {
-  const playerBalloon = document.getElementById('player-balloon');
-  const shopBtn = document.getElementById('shop-btn');
-  const shopCloseBtn = document.getElementById('shop-close-btn');
-  const entitiesContainer = document.getElementById('game-entities');
+  const playerBalloon = document.getElementById("player-balloon");
+  const shopBtn = document.getElementById("shop-btn");
+  const shopCloseBtn = document.getElementById("shop-close-btn");
+  const entitiesContainer = document.getElementById("game-entities");
 
   // Player balloon click and hold
   let holdInterval;
@@ -379,15 +395,15 @@ function setupGameEventListeners() {
     gameState.isHoldingBalloon = false;
   };
 
-  playerBalloon.addEventListener('mousedown', startHolding);
-  playerBalloon.addEventListener('mouseup', stopHolding);
-  playerBalloon.addEventListener('mouseleave', stopHolding);
+  playerBalloon.addEventListener("mousedown", startHolding);
+  playerBalloon.addEventListener("mouseup", stopHolding);
+  playerBalloon.addEventListener("mouseleave", stopHolding);
 
-  playerBalloon.addEventListener('touchstart', (e) => {
+  playerBalloon.addEventListener("touchstart", (e) => {
     e.preventDefault();
     startHolding();
   });
-  playerBalloon.addEventListener('touchend', (e) => {
+  playerBalloon.addEventListener("touchend", (e) => {
     e.preventDefault();
     stopHolding();
   });
@@ -404,17 +420,17 @@ function setupGameEventListeners() {
   });
 
   // Shop buy buttons
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('.shop-buy-btn')) {
-      const button = e.target.closest('.shop-buy-btn');
+  document.addEventListener("click", (e) => {
+    if (e.target.closest(".shop-buy-btn")) {
+      const button = e.target.closest(".shop-buy-btn");
       const buildingKey = button.dataset.building;
       purchaseBuilding(buildingKey);
     }
   });
 
   // Golden balloon click handler using event delegation
-  entitiesContainer.addEventListener('click', (e) => {
-    const balloonEl = e.target.closest('.golden-balloon');
+  entitiesContainer.addEventListener("click", (e) => {
+    const balloonEl = e.target.closest(".golden-balloon");
     if (balloonEl) {
       const balloonId = balloonEl.dataset.balloonId;
       if (balloonId) {
@@ -424,8 +440,8 @@ function setupGameEventListeners() {
   });
 
   // Touch handler for golden balloons
-  entitiesContainer.addEventListener('touchend', (e) => {
-    const balloonEl = e.target.closest('.golden-balloon');
+  entitiesContainer.addEventListener("touchend", (e) => {
+    const balloonEl = e.target.closest(".golden-balloon");
     if (balloonEl) {
       e.preventDefault();
       const balloonId = balloonEl.dataset.balloonId;
@@ -440,7 +456,7 @@ function setupGameEventListeners() {
 function openShop() {
   gameState.shopOpen = true;
   gameState.isPaused = true;
-  document.getElementById('shop-panel').classList.remove('hidden');
+  document.getElementById("shop-panel").classList.remove("hidden");
   updateShopDisplay();
 }
 
@@ -448,7 +464,7 @@ function openShop() {
 function closeShop() {
   gameState.shopOpen = false;
   gameState.isPaused = false;
-  document.getElementById('shop-panel').classList.add('hidden');
+  document.getElementById("shop-panel").classList.add("hidden");
 }
 
 // Start game loop
@@ -471,29 +487,44 @@ function updateGame() {
 
   // Update player sine wave movement
   gameState.player.sineOffset += GAME_CONFIG.PLAYER_SINE_SPEED;
-  gameState.player.x = GAME_CONFIG.PLAYER_HORIZONTAL_CENTER +
+  gameState.player.x =
+    GAME_CONFIG.PLAYER_HORIZONTAL_CENTER +
     Math.sin(gameState.player.sineOffset) * GAME_CONFIG.PLAYER_SINE_AMPLITUDE;
 
   // Handle rising (when holding balloon)
   if (gameState.isHoldingBalloon && gameState.energy > 0) {
     // Increase altitude instead of moving player Y position
     gameState.player.altitude += GAME_CONFIG.RISE_SPEED * 0.5; // Convert pixels to meters
-    gameState.energy = Math.max(0, gameState.energy - GAME_CONFIG.ENERGY_RISE_COST);
+    gameState.energy = Math.max(
+      0,
+      gameState.energy - GAME_CONFIG.ENERGY_RISE_COST
+    );
   }
 
   // Energy production
   if (gameState.buildings.ENERGY_PRODUCTION > 0) {
-    const production = GAME_CONFIG.BUILDINGS.ENERGY_PRODUCTION.baseProduction *
-      Math.pow(GAME_CONFIG.BUILDINGS.ENERGY_PRODUCTION.productionMultiplier, gameState.buildings.ENERGY_PRODUCTION - 1);
-    gameState.energy = Math.min(GAME_CONFIG.ENERGY_MAX, gameState.energy + production);
+    const production =
+      GAME_CONFIG.BUILDINGS.ENERGY_PRODUCTION.baseProduction *
+      Math.pow(
+        GAME_CONFIG.BUILDINGS.ENERGY_PRODUCTION.productionMultiplier,
+        gameState.buildings.ENERGY_PRODUCTION - 1
+      );
+    gameState.energy = Math.min(
+      GAME_CONFIG.ENERGY_MAX,
+      gameState.energy + production
+    );
   }
 
   // Gold production
   if (gameState.buildings.GOLD_PRODUCTION > 0) {
     const timeSinceLastProduction = now - gameState.lastGoldProduction;
     if (timeSinceLastProduction >= 1000) {
-      const production = GAME_CONFIG.BUILDINGS.GOLD_PRODUCTION.baseProduction *
-        Math.pow(GAME_CONFIG.BUILDINGS.GOLD_PRODUCTION.productionMultiplier, gameState.buildings.GOLD_PRODUCTION - 1);
+      const production =
+        GAME_CONFIG.BUILDINGS.GOLD_PRODUCTION.baseProduction *
+        Math.pow(
+          GAME_CONFIG.BUILDINGS.GOLD_PRODUCTION.productionMultiplier,
+          gameState.buildings.GOLD_PRODUCTION - 1
+        );
       gameState.coins += Math.floor(production);
       gameState.lastGoldProduction = now;
     }
@@ -516,7 +547,10 @@ function updateGame() {
   }
 
   // Spawn golden balloons
-  if (now - gameState.lastGoldenBalloonSpawn >= GAME_CONFIG.GOLDEN_BALLOON_SPAWN_INTERVAL) {
+  if (
+    now - gameState.lastGoldenBalloonSpawn >=
+    GAME_CONFIG.GOLDEN_BALLOON_SPAWN_INTERVAL
+  ) {
     spawnGoldenBalloon();
     gameState.lastGoldenBalloonSpawn = now;
   }
@@ -548,8 +582,10 @@ function spawnGoldenBalloon() {
   const balloon = {
     id: Date.now() + Math.random(),
     x: GAME_CONFIG.GOLDEN_BALLOON_START_X,
-    y: GAME_CONFIG.GOLDEN_BALLOON_MIN_Y +
-      Math.random() * (GAME_CONFIG.GOLDEN_BALLOON_MAX_Y - GAME_CONFIG.GOLDEN_BALLOON_MIN_Y),
+    y:
+      GAME_CONFIG.GOLDEN_BALLOON_MIN_Y +
+      Math.random() *
+        (GAME_CONFIG.GOLDEN_BALLOON_MAX_Y - GAME_CONFIG.GOLDEN_BALLOON_MIN_Y),
   };
 
   gameState.goldenBalloons.push(balloon);
@@ -557,10 +593,12 @@ function spawnGoldenBalloon() {
 
 // Update golden balloons
 function updateGoldenBalloons() {
-  const magnetRange = GAME_CONFIG.STARTING_MAGNET_RANGE +
-    (gameState.buildings.MAGNET_STRENGTH * GAME_CONFIG.BUILDINGS.MAGNET_STRENGTH.rangeIncrease);
+  const magnetRange =
+    GAME_CONFIG.STARTING_MAGNET_RANGE +
+    gameState.buildings.MAGNET_STRENGTH *
+      GAME_CONFIG.BUILDINGS.MAGNET_STRENGTH.rangeIncrease;
 
-  gameState.goldenBalloons = gameState.goldenBalloons.filter(balloon => {
+  gameState.goldenBalloons = gameState.goldenBalloons.filter((balloon) => {
     // Move left
     balloon.x -= GAME_CONFIG.GOLDEN_BALLOON_SPEED;
 
@@ -585,23 +623,29 @@ function updateGoldenBalloons() {
 
 // Collect golden balloon
 function collectGoldenBalloon() {
-  const value = GAME_CONFIG.STARTING_BALLOON_VALUE +
-    (gameState.buildings.BALLOON_VALUE * GAME_CONFIG.BUILDINGS.BALLOON_VALUE.valueIncrease);
+  const value =
+    GAME_CONFIG.STARTING_BALLOON_VALUE +
+    gameState.buildings.BALLOON_VALUE *
+      GAME_CONFIG.BUILDINGS.BALLOON_VALUE.valueIncrease;
   gameState.coins += value;
   audioManager.playSoundEffect("btnClick");
 }
 
 // Collect golden balloon by ID (when clicked)
 function collectBalloonById(balloonId) {
-  const balloonIndex = gameState.goldenBalloons.findIndex(b => b.id === balloonId);
+  const balloonIndex = gameState.goldenBalloons.findIndex(
+    (b) => b.id === balloonId
+  );
 
   if (balloonIndex > -1) {
     // Remove the balloon from the array
     gameState.goldenBalloons.splice(balloonIndex, 1);
 
     // Add coins to player
-    const value = GAME_CONFIG.STARTING_BALLOON_VALUE +
-      (gameState.buildings.BALLOON_VALUE * GAME_CONFIG.BUILDINGS.BALLOON_VALUE.valueIncrease);
+    const value =
+      GAME_CONFIG.STARTING_BALLOON_VALUE +
+      gameState.buildings.BALLOON_VALUE *
+        GAME_CONFIG.BUILDINGS.BALLOON_VALUE.valueIncrease;
     gameState.coins += value;
 
     // Play collection sound
@@ -622,7 +666,12 @@ function getCurrentCloudLayer() {
 
 // Spawn enemy
 function spawnEnemy() {
-  const enemyTypes = ['enemy-balloon-1.png', 'enemy-balloon-2.png', 'enemy-balloon-3.png', 'enemy-balloon-4.png'];
+  const enemyTypes = [
+    "enemy-balloon-1.png",
+    "enemy-balloon-2.png",
+    "enemy-balloon-3.png",
+    "enemy-balloon-4.png",
+  ];
   const currentLayer = getCurrentCloudLayer();
 
   // Spawn enemy at the player's current altitude range
@@ -646,7 +695,7 @@ function spawnEnemy() {
 function updateEnemies() {
   const now = Date.now();
 
-  gameState.enemies = gameState.enemies.filter(enemy => {
+  gameState.enemies = gameState.enemies.filter((enemy) => {
     // Move left
     enemy.x -= GAME_CONFIG.ENEMY_SPEED;
 
@@ -655,7 +704,10 @@ function updateEnemies() {
     const dy = enemy.y - gameState.player.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    if (distance <= 60 && now - enemy.lastCollisionTime >= GAME_CONFIG.ENEMY_COLLISION_COOLDOWN) {
+    if (
+      distance <= 60 &&
+      now - enemy.lastCollisionTime >= GAME_CONFIG.ENEMY_COLLISION_COOLDOWN
+    ) {
       damagePlayer(GAME_CONFIG.ENEMY_DAMAGE);
       enemy.lastCollisionTime = now;
     }
@@ -680,15 +732,17 @@ function updateAutoAttack(now) {
   if (gameState.buildings.AUTO_ATTACK === 0) return;
   if (gameState.energy <= 0) return;
 
-  const attackRange = GAME_CONFIG.STARTING_ATTACK_RANGE +
-    (gameState.buildings.AUTO_ATTACK * GAME_CONFIG.BUILDINGS.AUTO_ATTACK.rangeIncrease);
+  const attackRange =
+    GAME_CONFIG.STARTING_ATTACK_RANGE +
+    gameState.buildings.AUTO_ATTACK *
+      GAME_CONFIG.BUILDINGS.AUTO_ATTACK.rangeIncrease;
 
   if (now - gameState.lastAttackTime >= GAME_CONFIG.ATTACK_COOLDOWN) {
     // Find closest enemy in range
     let closestEnemy = null;
     let closestDistance = attackRange;
 
-    gameState.enemies.forEach(enemy => {
+    gameState.enemies.forEach((enemy) => {
       const dx = enemy.x - gameState.player.x;
       const dy = enemy.y - gameState.player.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
@@ -704,8 +758,10 @@ function updateAutoAttack(now) {
       createLaser(gameState.player.x, gameState.player.y, closestEnemy);
 
       // Damage enemy
-      const damage = GAME_CONFIG.ATTACK_DAMAGE +
-        (gameState.buildings.AUTO_ATTACK * GAME_CONFIG.BUILDINGS.AUTO_ATTACK.damageIncrease);
+      const damage =
+        GAME_CONFIG.ATTACK_DAMAGE +
+        gameState.buildings.AUTO_ATTACK *
+          GAME_CONFIG.BUILDINGS.AUTO_ATTACK.damageIncrease;
       closestEnemy.health -= damage;
 
       if (closestEnemy.health <= 0) {
@@ -713,7 +769,10 @@ function updateAutoAttack(now) {
       }
 
       // Consume energy
-      gameState.energy = Math.max(0, gameState.energy - GAME_CONFIG.ENERGY_ATTACK_COST);
+      gameState.energy = Math.max(
+        0,
+        gameState.energy - GAME_CONFIG.ENERGY_ATTACK_COST
+      );
       gameState.lastAttackTime = now;
 
       audioManager.playSoundEffect("btnClick");
@@ -737,7 +796,7 @@ function createLaser(startX, startY, target) {
 
 // Update lasers
 function updateLasers(now) {
-  gameState.lasers = gameState.lasers.filter(laser => {
+  gameState.lasers = gameState.lasers.filter((laser) => {
     return now - laser.createdAt < GAME_CONFIG.LASER_DURATION;
   });
 }
@@ -767,7 +826,10 @@ function dropGoldenBalloonsFromEnemy(x, y) {
 // Damage player
 function damagePlayer(damage) {
   gameState.player.health -= damage;
-  gameState.player.altitude = Math.max(0, gameState.player.altitude - GAME_CONFIG.DAMAGE_KNOCKBACK * 0.5);
+  gameState.player.altitude = Math.max(
+    0,
+    gameState.player.altitude - GAME_CONFIG.DAMAGE_KNOCKBACK * 0.5
+  );
 
   audioManager.playSoundEffect("playerDamage");
 
@@ -779,32 +841,34 @@ function damagePlayer(damage) {
 // Render game
 function renderGame() {
   // Keep player balloon fixed in position (only horizontal sway)
-  const playerBalloon = document.getElementById('player-balloon');
+  const playerBalloon = document.getElementById("player-balloon");
   if (playerBalloon) {
-    playerBalloon.style.left = gameState.player.x + 'px';
-    playerBalloon.style.top = gameState.player.y + 'px'; // Fixed vertical position
+    playerBalloon.style.left = gameState.player.x + "px";
+    playerBalloon.style.top = gameState.player.y + "px"; // Fixed vertical position
   }
 
   // Update magnet radius indicator
-  const magnetRadius = document.getElementById('magnet-radius');
+  const magnetRadius = document.getElementById("magnet-radius");
   if (magnetRadius) {
-    const magnetRange = GAME_CONFIG.STARTING_MAGNET_RANGE +
-      (gameState.buildings.MAGNET_STRENGTH * GAME_CONFIG.BUILDINGS.MAGNET_STRENGTH.rangeIncrease);
+    const magnetRange =
+      GAME_CONFIG.STARTING_MAGNET_RANGE +
+      gameState.buildings.MAGNET_STRENGTH *
+        GAME_CONFIG.BUILDINGS.MAGNET_STRENGTH.rangeIncrease;
     const radiusSize = magnetRange * 2; // Diameter = radius * 2
 
-    magnetRadius.style.left = gameState.player.x + 'px';
-    magnetRadius.style.top = gameState.player.y + 'px';
-    magnetRadius.style.width = radiusSize + 'px';
-    magnetRadius.style.height = radiusSize + 'px';
+    magnetRadius.style.left = gameState.player.x + "px";
+    magnetRadius.style.top = gameState.player.y + "px";
+    magnetRadius.style.width = radiusSize + "px";
+    magnetRadius.style.height = radiusSize + "px";
   }
 
   // Calculate background offset based on altitude (convert altitude meters to pixels for display)
   const altitudeOffset = gameState.player.altitude * 2; // Scale for visual effect
 
   // Update lava position (moves down as player ascends)
-  const lava = document.getElementById('lava');
+  const lava = document.getElementById("lava");
   if (lava) {
-    lava.style.top = (GAME_CONFIG.LAVA_START_Y + altitudeOffset) + 'px';
+    lava.style.top = GAME_CONFIG.LAVA_START_Y + altitudeOffset + "px";
   }
 
   // Update cloud layers (parallax effect based on altitude)
@@ -812,8 +876,9 @@ function renderGame() {
     const cloudElement = document.getElementById(`cloud-layer-${index + 1}`);
     if (cloudElement) {
       // Different parallax speeds for different layers
-      const parallaxSpeed = 0.3 + (index * 0.2);
-      cloudElement.style.top = (layer.baseY + altitudeOffset * parallaxSpeed) + 'px';
+      const parallaxSpeed = 0.3 + index * 0.2;
+      cloudElement.style.top =
+        layer.baseY + altitudeOffset * parallaxSpeed + "px";
     }
   });
 
@@ -830,18 +895,18 @@ const entityDOMCache = {
 
 // Render all entities (golden balloons, enemies, lasers)
 function renderEntities() {
-  const entitiesContainer = document.getElementById('game-entities');
+  const entitiesContainer = document.getElementById("game-entities");
 
   // Render lasers - update existing or create new
   const currentLaserIds = new Set();
-  gameState.lasers.forEach(laser => {
+  gameState.lasers.forEach((laser) => {
     currentLaserIds.add(laser.id);
 
     let laserEl = entityDOMCache.lasers.get(laser.id);
     if (!laserEl) {
       // Create new laser element
-      laserEl = document.createElement('div');
-      laserEl.className = 'laser';
+      laserEl = document.createElement("div");
+      laserEl.className = "laser";
       entityDOMCache.lasers.set(laser.id, laserEl);
       entitiesContainer.appendChild(laserEl);
     }
@@ -849,15 +914,15 @@ function renderEntities() {
     // Calculate angle and length
     const dx = laser.endX - laser.startX;
     const dy = laser.endY - laser.startY;
-    const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
     const length = Math.sqrt(dx * dx + dy * dy);
 
     // Update position and rotation
-    laserEl.style.left = laser.startX + 'px';
-    laserEl.style.top = laser.startY + 'px';
-    laserEl.style.width = length + 'px';
+    laserEl.style.left = laser.startX + "px";
+    laserEl.style.top = laser.startY + "px";
+    laserEl.style.width = length + "px";
     laserEl.style.transform = `rotate(${angle}deg)`;
-    laserEl.style.transformOrigin = '0 50%';
+    laserEl.style.transformOrigin = "0 50%";
   });
 
   // Remove lasers that no longer exist
@@ -870,24 +935,25 @@ function renderEntities() {
 
   // Render golden balloons - update existing or create new
   const currentBalloonIds = new Set();
-  gameState.goldenBalloons.forEach(balloon => {
+  gameState.goldenBalloons.forEach((balloon) => {
     currentBalloonIds.add(balloon.id);
 
     let balloonEl = entityDOMCache.goldenBalloons.get(balloon.id);
     if (!balloonEl) {
       // Create new balloon element
-      balloonEl = document.createElement('div');
-      balloonEl.className = 'golden-balloon';
-      balloonEl.style.cursor = 'pointer';
-      balloonEl.innerHTML = '<img src="images/golden-balloon.png" alt="Golden Balloon">';
+      balloonEl = document.createElement("div");
+      balloonEl.className = "golden-balloon";
+      balloonEl.style.cursor = "pointer";
+      balloonEl.innerHTML =
+        '<img src="images/golden-balloon.png" alt="Golden Balloon">';
       balloonEl.dataset.balloonId = balloon.id;
       entityDOMCache.goldenBalloons.set(balloon.id, balloonEl);
       entitiesContainer.appendChild(balloonEl);
     }
 
     // Update position
-    balloonEl.style.left = balloon.x + 'px';
-    balloonEl.style.top = balloon.y + 'px';
+    balloonEl.style.left = balloon.x + "px";
+    balloonEl.style.top = balloon.y + "px";
   });
 
   // Remove balloons that no longer exist
@@ -900,22 +966,22 @@ function renderEntities() {
 
   // Render enemies - update existing or create new
   const currentEnemyIds = new Set();
-  gameState.enemies.forEach(enemy => {
+  gameState.enemies.forEach((enemy) => {
     currentEnemyIds.add(enemy.id);
 
     let enemyEl = entityDOMCache.enemies.get(enemy.id);
     if (!enemyEl) {
       // Create new enemy element
-      enemyEl = document.createElement('div');
-      enemyEl.className = 'enemy-balloon';
+      enemyEl = document.createElement("div");
+      enemyEl.className = "enemy-balloon";
       enemyEl.innerHTML = `<img src="images/${enemy.image}" alt="Enemy Balloon">`;
       entityDOMCache.enemies.set(enemy.id, enemyEl);
       entitiesContainer.appendChild(enemyEl);
     }
 
     // Update position
-    enemyEl.style.left = enemy.x + 'px';
-    enemyEl.style.top = enemy.y + 'px';
+    enemyEl.style.left = enemy.x + "px";
+    enemyEl.style.top = enemy.y + "px";
   });
 
   // Remove enemies that no longer exist
@@ -930,37 +996,45 @@ function renderEntities() {
 // Update UI
 function updateUI() {
   // Update coin count
-  document.getElementById('coin-count').textContent = Math.floor(gameState.coins);
+  document.getElementById("coin-count").textContent = Math.floor(
+    gameState.coins
+  );
 
   // Update health
-  document.getElementById('health-count').textContent =
-    `${gameState.player.health}/${gameState.player.maxHealth}`;
+  document.getElementById(
+    "health-count"
+  ).textContent = `${gameState.player.health}/${gameState.player.maxHealth}`;
 
   // Update energy bar
   const energyPercent = (gameState.energy / GAME_CONFIG.ENERGY_MAX) * 100;
-  document.getElementById('energy-bar-fill').style.height = energyPercent + '%';
-  document.getElementById('energy-bar-text').textContent =
-    `${Math.floor(gameState.energy)}/${GAME_CONFIG.ENERGY_MAX}`;
+  document.getElementById("energy-bar-fill").style.height = energyPercent + "%";
+  document.getElementById("energy-bar-text").textContent = `${Math.floor(
+    gameState.energy
+  )}/${GAME_CONFIG.ENERGY_MAX}`;
 
   // Update altitude
   const altitude = Math.floor(gameState.player.altitude);
-  document.getElementById('altitude-value').textContent = altitude + 'm';
+  document.getElementById("altitude-value").textContent = altitude + "m";
 
   // Update cloud layer progress
   const currentLayerIndex = getCurrentCloudLayer();
   const currentLayer = GAME_CONFIG.CLOUD_LAYERS[currentLayerIndex];
-  const progressInLayer = gameState.player.altitude - currentLayer.startAltitude;
-  const progressPercent = Math.min(100, (progressInLayer / currentLayer.depth) * 100);
+  const progressInLayer =
+    gameState.player.altitude - currentLayer.startAltitude;
+  const progressPercent = Math.min(
+    100,
+    (progressInLayer / currentLayer.depth) * 100
+  );
 
-  const cloudProgressFill = document.getElementById('cloud-progress-fill');
-  const cloudProgressText = document.getElementById('cloud-progress-text');
-  const cloudLayerName = document.getElementById('cloud-layer-name');
+  const cloudProgressFill = document.getElementById("cloud-progress-fill");
+  const cloudProgressText = document.getElementById("cloud-progress-text");
+  const cloudLayerName = document.getElementById("cloud-layer-name");
 
   if (cloudProgressFill) {
-    cloudProgressFill.style.height = progressPercent + '%';
+    cloudProgressFill.style.height = progressPercent + "%";
   }
   if (cloudProgressText) {
-    cloudProgressText.textContent = Math.floor(progressPercent) + '%';
+    cloudProgressText.textContent = Math.floor(progressPercent) + "%";
   }
   if (cloudLayerName) {
     cloudLayerName.textContent = currentLayer.name;
