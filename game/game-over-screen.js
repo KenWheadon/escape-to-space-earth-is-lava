@@ -4,11 +4,6 @@ import { audioManager } from "./audio-manager.js";
 import { getStarRating, getInfiniteStarRating } from "./storage-manager.js";
 import { SpriteSheet } from "./sprite-sheet.js";
 import { getSpriteConfig } from "./sprites-config.js";
-import {
-  trackPauseOnWinScreen,
-  trackPauseOnLoseScreen,
-  trackTryAgainSelected,
-} from "./trophy-manager.js";
 
 export class GameOverScreen {
   constructor() {
@@ -30,17 +25,7 @@ export class GameOverScreen {
   /**
    * Initialize sprite animations for victory and defeat screens
    */
-  initSprites() {
-    // Create losing animation sprite using config
-    const losingConfig = getSpriteConfig("losing-animation");
-    console.log("Losing sprite config:", losingConfig);
-    this.losingSprite = new SpriteSheet(losingConfig);
-
-    // Create winning animation sprite using config
-    const winningConfig = getSpriteConfig("winning-animation");
-    console.log("Winning sprite config:", winningConfig);
-    this.winningSprite = new SpriteSheet(winningConfig);
-  }
+  initSprites() {}
 
   // Helper function to add both click and touch event listeners
   addTouchAndClickListener(element, handler) {
@@ -205,7 +190,10 @@ export class GameOverScreen {
     fightElement.textContent = fightReached;
 
     console.log("=== DEFEAT SCREEN DEBUG ===");
-    console.log("spriteContainer:", this.defeatScreen.querySelector(".defeat-player-sprite-container"));
+    console.log(
+      "spriteContainer:",
+      this.defeatScreen.querySelector(".defeat-player-sprite-container")
+    );
     console.log("losingSprite:", this.losingSprite);
     console.log("losingSprite.isLoaded:", this.losingSprite?.isLoaded);
     console.log("losingSprite config:", {
@@ -215,7 +203,7 @@ export class GameOverScreen {
       frameHeight: this.losingSprite?.frameHeight,
       rows: this.losingSprite?.rows,
       cols: this.losingSprite?.cols,
-      totalFrames: this.losingSprite?.totalFrames
+      totalFrames: this.losingSprite?.totalFrames,
     });
 
     // Setup and play losing sprite animation
@@ -238,13 +226,23 @@ export class GameOverScreen {
 
       console.log("Image element created, src:", img.src);
       console.log("Attempting to play sprite animation...");
-      console.log("Sprite container dimensions:", spriteContainer.offsetWidth, "x", spriteContainer.offsetHeight);
+      console.log(
+        "Sprite container dimensions:",
+        spriteContainer.offsetWidth,
+        "x",
+        spriteContainer.offsetHeight
+      );
 
       // Wait for sprite to load before playing
       const playWhenReady = () => {
         if (this.losingSprite.isLoaded) {
           console.log("Sprite loaded! Starting animation...");
-          console.log("Image natural dimensions:", img.naturalWidth, "x", img.naturalHeight);
+          console.log(
+            "Image natural dimensions:",
+            img.naturalWidth,
+            "x",
+            img.naturalHeight
+          );
           this.losingSprite.play(spriteContainer);
           console.log("Animation playing:", this.losingSprite.isPlaying);
         } else {

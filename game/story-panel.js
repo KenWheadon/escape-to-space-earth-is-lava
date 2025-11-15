@@ -1,5 +1,4 @@
 import { audioManager } from "./audio-manager.js";
-import { trackStoryViewed } from "./trophy-manager.js";
 
 // Story panel data
 const STORY_PANELS = [
@@ -165,8 +164,6 @@ export class StoryPanel {
       audioManager.playSoundEffect("storyPage");
     } else {
       // On last panel, next button closes the story
-      // Track that user viewed the full story
-      trackStoryViewed();
       this.close();
     }
   }

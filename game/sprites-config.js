@@ -36,29 +36,6 @@ function createHitSpriteConfig(imagePath, overrides = {}) {
 }
 
 export const SPRITE_CONFIGS = {
-  // Pose 2 - manual config to crop bottom whitespace
-  "pose2-hit": createHitSpriteConfig(
-    "images/pose2-hit-spritesheet-2064-1548.png"
-  ),
-  "pose3-hit": createHitSpriteConfig(
-    "images/pose3-hit-spritesheet-2064-1548.png"
-  ),
-  "pose4-hit": createHitSpriteConfig(
-    "images/pose4-hit-spritesheet-2064-1548.png"
-  ),
-  "pose5-hit": createHitSpriteConfig(
-    "images/pose5-hit-spritesheet-2064-1548.png"
-  ),
-  // Time warp animation
-  "pose8-timewarp": createHitSpriteConfig(
-    "images/pose8-spritesheet-2076-2814.png",
-    {
-      scale: 2.0, // Larger scale for dramatic effect
-      fps: 24, // Slightly faster animation
-      loop: true,
-      pingPong: true, // Play forward, backward, forward
-    }
-  ),
   // Use a direct configuration for the logo to handle custom offsets and gaps correctly.
   "logo-thin": {
     imagePath: "images/logo-thin-spritesheet-3072-3072.png",
@@ -85,26 +62,6 @@ export const SPRITE_CONFIGS = {
       scale: 0.8, // Reduced scale to make it smaller
       fps: 12,
       pingPong: true, // Play forward, then backward, and repeat
-    }
-  ),
-  // Losing animation for defeat screen
-  "losing-animation": createHitSpriteConfig(
-    "images/losing-spritesheet-1464-1554.png",
-    {
-      rows: 6,
-      cols: 6,
-      fps: 12,
-      loop: true,
-    }
-  ),
-  // Winning animation for victory screen
-  "winning-animation": createHitSpriteConfig(
-    "images/winning-spritesheet-1350-1578.png",
-    {
-      rows: 6,
-      cols: 6,
-      fps: 12,
-      loop: true,
     }
   ),
 };

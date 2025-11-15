@@ -559,6 +559,24 @@ function collectGoldenBalloon() {
   audioManager.playSoundEffect("btnClick");
 }
 
+// Collect golden balloon by ID (when clicked)
+function collectBalloonById(balloonId) {
+  const balloonIndex = gameState.goldenBalloons.findIndex(b => b.id === balloonId);
+
+  if (balloonIndex > -1) {
+    // Remove the balloon from the array
+    gameState.goldenBalloons.splice(balloonIndex, 1);
+
+    // Add coins to player
+    const value = GAME_CONFIG.STARTING_BALLOON_VALUE +
+      (gameState.buildings.BALLOON_VALUE * GAME_CONFIG.BUILDINGS.BALLOON_VALUE.valueIncrease);
+    gameState.coins += value;
+
+    // Play collection sound
+    audioManager.playSoundEffect("btnClick");
+  }
+}
+
 // Get current cloud layer based on altitude
 function getCurrentCloudLayer() {
   const altitude = gameState.player.altitude;
@@ -791,7 +809,16 @@ function renderEntities() {
     balloonEl.className = 'golden-balloon';
     balloonEl.style.left = balloon.x + 'px';
     balloonEl.style.top = balloon.y + 'px';
+    balloonEl.style.cursor = 'pointer';
     balloonEl.innerHTML = '<img src="images/golden-balloon.png" alt="Golden Balloon">';
+    balloonEl.dataset.balloonId = balloon.id;
+
+    // Add click listener to collect balloon
+    addTouchAndClickListener(balloonEl, (e) => {
+      e.stopPropagation();
+      collectBalloonById(balloon.id);
+    });
+
     entitiesContainer.appendChild(balloonEl);
   });
 
