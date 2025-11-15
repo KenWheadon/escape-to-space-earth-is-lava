@@ -19,8 +19,6 @@ export class LoadingScreen {
 
     // Asset lists
     this.allImages = [
-      // Spritesheets
-      "images/company-logo-spritesheet-1386-1818.png",
       // Story images
       "images/story0.jpg",
       "images/story1.jpg",
@@ -32,10 +30,6 @@ export class LoadingScreen {
       "images/story7.jpg",
       // Player sprites
       "images/player-default.png",
-      "images/player-0hp.png",
-      "images/player-1hp.png",
-      "images/player-2hp.png",
-      "images/player-win.png",
     ];
 
     this.allAudio = [

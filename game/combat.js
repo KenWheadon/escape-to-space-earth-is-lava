@@ -39,6 +39,7 @@ let gameState = {
   // Timers
   lastGoldenBalloonSpawn: 0,
   lastEnemySpawn: 0,
+  lastEnemyLaserTime: 0,
   lastAttackTime: 0,
   lastGoldProduction: 0,
 
@@ -102,6 +103,29 @@ const elements = {
 // Create game UI elements
 function createGameUI() {
   elements.gameContent.innerHTML = `
+    <style>
+      .enemy-balloon {
+        position: absolute;
+        /* other styles */
+      }
+      .enemy-cooldown-bar-bg {
+        position: absolute;
+        bottom: -20px; /* Position below the balloon */
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 10px;
+        background-color: #333;
+        border: 1px solid #555;
+        border-radius: 5px;
+      }
+      .enemy-cooldown-bar-fill {
+        width: 0%;
+        height: 100%;
+        background-color: #ff4500; /* Orange-red color */
+        border-radius: 4px;
+      }
+    </style>
     <div id="game-canvas">
       <!-- Background layers -->
       <div id="background-sky"></div>
@@ -171,8 +195,11 @@ function createGameUI() {
           </div>
         </div>
 
-        <!-- Dev Button -->
-        <button id="dev-add-coins-btn">Add 1000 Coins</button>
+        <!-- Dev Buttons -->
+        <div id="dev-buttons-container">
+          <button id="dev-spawn-enemy-btn" class="dev-btn">Spawn Enemy</button>
+          <button id="dev-add-coins-btn" class="dev-btn">Add Coins</button>
+        </div>
       </div>
     </div>
 
@@ -311,7 +338,8 @@ export function initGame() {
     lasers: [],
 
     lastGoldenBalloonSpawn: 0,
-    lastEnemySpawn: 0,
+    lastEnemySpawn: Date.now(),
+    lastEnemyLaserTime: 0,
     lastAttackTime: 0,
     lastGoldProduction: Date.now(),
 
@@ -460,6 +488,18 @@ function setupGameEventListeners() {
     addTouchAndClickListener(devAddCoinsBtn, () => {
       gameState.coins += 1000;
       updateUI();
+    });
+  }
+
+  // Dev button to spawn an enemy
+  const devSpawnEnemyBtn = document.getElementById("dev-spawn-enemy-btn");
+  if (devSpawnEnemyBtn) {
+    addTouchAndClickListener(devSpawnEnemyBtn, () => {
+      // Only spawn if no enemies are on screen
+      if (gameState.enemies.length === 0) {
+        spawnEnemy();
+        audioManager.playSoundEffect("popupAppear");
+      }
     });
   }
 }
@@ -689,18 +729,18 @@ function spawnEnemy() {
   ];
   const currentLayer = getCurrentCloudLayer();
 
-  // Spawn enemy at the player's current altitude range
-  const minY = 100;
-  const maxY = 500;
-
   const enemy = {
     id: Date.now() + Math.random(),
-    x: GAME_CONFIG.ENEMY_START_X,
-    y: minY + Math.random() * (maxY - minY),
+    x: 900, // Start off-screen to the right
+    targetX: GAME_CONFIG.ENEMY_START_X,
+    y: gameState.player.y + (Math.random() - 0.5) * 200, // Spawn near player's on-screen Y
     altitude: gameState.player.altitude + (Math.random() - 0.5) * 100, // Spawn near player altitude
     health: GAME_CONFIG.ENEMY_HEALTH,
     image: enemyTypes[Math.floor(Math.random() * enemyTypes.length)],
-    lastCollisionTime: 0,
+    lastLaserFireTime: Date.now(),
+    laserCooldown: 10000, // 10 seconds
+    isSpawning: true,
+    spawnSpeed: 4,
   };
 
   gameState.enemies.push(enemy);
@@ -711,20 +751,24 @@ function updateEnemies() {
   const now = Date.now();
 
   gameState.enemies = gameState.enemies.filter((enemy) => {
-    // Move left
-    enemy.x -= GAME_CONFIG.ENEMY_SPEED;
-
-    // Check collision with player
-    const dx = enemy.x - gameState.player.x;
-    const dy = enemy.y - gameState.player.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    if (
-      distance <= 60 &&
-      now - enemy.lastCollisionTime >= GAME_CONFIG.ENEMY_COLLISION_COOLDOWN
-    ) {
-      damagePlayer(GAME_CONFIG.ENEMY_DAMAGE);
-      enemy.lastCollisionTime = now;
+    // Animate in if spawning
+    if (enemy.isSpawning) {
+      enemy.x -= enemy.spawnSpeed;
+      if (enemy.x <= enemy.targetX) {
+        enemy.x = enemy.targetX;
+        enemy.isSpawning = false;
+      }
+    } else {
+      // Enemy fires lasers instead of moving or colliding
+      if (now - enemy.lastLaserFireTime >= enemy.laserCooldown) {
+        // Create a laser from enemy to player
+        createLaser(enemy.x, enemy.y, {
+          x: gameState.player.x,
+          y: gameState.player.y,
+        });
+        damagePlayer(GAME_CONFIG.ENEMY_DAMAGE);
+        enemy.lastLaserFireTime = now;
+      }
     }
 
     // Remove if below screen (defeated by going off screen)
@@ -734,7 +778,7 @@ function updateEnemies() {
     }
 
     // Remove if off screen left
-    if (enemy.x < -100) {
+    if (enemy.x < -100 && GAME_CONFIG.ENEMY_SPEED > 0) {
       return false;
     }
 
@@ -989,7 +1033,12 @@ function renderEntities() {
       // Create new enemy element
       enemyEl = document.createElement("div");
       enemyEl.className = "enemy-balloon";
-      enemyEl.innerHTML = `<img src="images/${enemy.image}" alt="Enemy Balloon">`;
+      enemyEl.innerHTML = `
+        <img src="images/${enemy.image}" alt="Enemy Balloon">
+        <div class="enemy-cooldown-bar-bg">
+          <div class="enemy-cooldown-bar-fill"></div>
+        </div>
+      `;
       entityDOMCache.enemies.set(enemy.id, enemyEl);
       entitiesContainer.appendChild(enemyEl);
     }
@@ -997,6 +1046,15 @@ function renderEntities() {
     // Update position
     enemyEl.style.left = enemy.x + "px";
     enemyEl.style.top = enemy.y + "px";
+
+    // Update cooldown bar
+    const cooldownFill = enemyEl.querySelector(".enemy-cooldown-bar-fill");
+    if (cooldownFill) {
+      const now = Date.now();
+      const elapsed = now - enemy.lastLaserFireTime;
+      const progress = Math.min(1, elapsed / enemy.laserCooldown);
+      cooldownFill.style.width = `${progress * 100}%`;
+    }
   });
 
   // Remove enemies that no longer exist

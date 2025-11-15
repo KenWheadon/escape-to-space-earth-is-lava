@@ -2,8 +2,6 @@
 
 import { audioManager } from "./audio-manager.js";
 import { getStarRating, getInfiniteStarRating } from "./storage-manager.js";
-import { SpriteSheet } from "./sprite-sheet.js";
-import { getSpriteConfig } from "./sprites-config.js";
 
 export class GameOverScreen {
   constructor() {
@@ -14,18 +12,8 @@ export class GameOverScreen {
     this.onRestartCallback = null;
     this.onMainMenuCallback = null;
 
-    // Initialize sprite animations
-    this.losingSprite = null;
-    this.winningSprite = null;
-    this.initSprites();
-
     this.initEventListeners();
   }
-
-  /**
-   * Initialize sprite animations for victory and defeat screens
-   */
-  initSprites() {}
 
   // Helper function to add both click and touch event listeners
   addTouchAndClickListener(element, handler) {
@@ -62,11 +50,6 @@ export class GameOverScreen {
     this.restartButtons.forEach((btn) => {
       this.addTouchAndClickListener(btn, () => {
         audioManager.playSoundEffect("btnClick");
-
-        // Track try again click if on defeat screen
-        if (this.defeatScreen.style.display === "flex") {
-          trackTryAgainSelected();
-        }
 
         this.hide();
         if (this.onRestartCallback) {
@@ -125,30 +108,7 @@ export class GameOverScreen {
     // Update star rating
     this.updateStarRating(timeInSeconds);
 
-    // Setup and play winning sprite animation
-    const spriteContainer = this.victoryScreen.querySelector(
-      ".victory-player-sprite-container"
-    );
-    if (spriteContainer && this.winningSprite) {
-      // Clear any existing content
-      spriteContainer.innerHTML = "";
-
-      // Create image element for the sprite
-      const img = document.createElement("img");
-      img.src = this.winningSprite.imagePath;
-      spriteContainer.appendChild(img);
-
-      // Wait for sprite to load before playing
-      const playWhenReady = () => {
-        if (this.winningSprite.isLoaded) {
-          this.winningSprite.play(spriteContainer);
-        } else {
-          // Check again in a bit
-          requestAnimationFrame(playWhenReady);
-        }
-      };
-      requestAnimationFrame(playWhenReady);
-    }
+    // Sprite animations removed
 
     // Show victory screen
     this.victoryScreen.style.display = "flex";
@@ -189,72 +149,7 @@ export class GameOverScreen {
     const fightElement = document.getElementById("defeat-fight");
     fightElement.textContent = fightReached;
 
-    console.log("=== DEFEAT SCREEN DEBUG ===");
-    console.log(
-      "spriteContainer:",
-      this.defeatScreen.querySelector(".defeat-player-sprite-container")
-    );
-    console.log("losingSprite:", this.losingSprite);
-    console.log("losingSprite.isLoaded:", this.losingSprite?.isLoaded);
-    console.log("losingSprite config:", {
-      frameContentWidth: this.losingSprite?.frameContentWidth,
-      frameContentHeight: this.losingSprite?.frameContentHeight,
-      frameWidth: this.losingSprite?.frameWidth,
-      frameHeight: this.losingSprite?.frameHeight,
-      rows: this.losingSprite?.rows,
-      cols: this.losingSprite?.cols,
-      totalFrames: this.losingSprite?.totalFrames,
-    });
-
-    // Setup and play losing sprite animation
-    const spriteContainer = this.defeatScreen.querySelector(
-      ".defeat-player-sprite-container"
-    );
-    if (spriteContainer && this.losingSprite) {
-      // Clear any existing content
-      spriteContainer.innerHTML = "";
-
-      // Create the proper sprite structure
-      // The sprite container already has overflow:hidden and position:relative
-      // We just need to add the img element directly (no need for extra clipper)
-      const img = document.createElement("img");
-      img.src = this.losingSprite.imagePath;
-      img.style.position = "absolute";
-      img.style.top = "0";
-      img.style.left = "0";
-      spriteContainer.appendChild(img);
-
-      console.log("Image element created, src:", img.src);
-      console.log("Attempting to play sprite animation...");
-      console.log(
-        "Sprite container dimensions:",
-        spriteContainer.offsetWidth,
-        "x",
-        spriteContainer.offsetHeight
-      );
-
-      // Wait for sprite to load before playing
-      const playWhenReady = () => {
-        if (this.losingSprite.isLoaded) {
-          console.log("Sprite loaded! Starting animation...");
-          console.log(
-            "Image natural dimensions:",
-            img.naturalWidth,
-            "x",
-            img.naturalHeight
-          );
-          this.losingSprite.play(spriteContainer);
-          console.log("Animation playing:", this.losingSprite.isPlaying);
-        } else {
-          console.log("Waiting for sprite to load...");
-          // Check again in a bit
-          requestAnimationFrame(playWhenReady);
-        }
-      };
-      requestAnimationFrame(playWhenReady);
-    } else {
-      console.log("ERROR: Missing spriteContainer or losingSprite!");
-    }
+    // Sprite animations removed
 
     // Show defeat screen
     this.defeatScreen.style.display = "flex";
@@ -282,30 +177,7 @@ export class GameOverScreen {
     const originalMessage = message.innerHTML;
     message.innerHTML = `Level ${levelReached} reached.<br>Can you go further?`;
 
-    // Setup and play losing sprite animation
-    const spriteContainer = this.defeatScreen.querySelector(
-      ".defeat-player-sprite-container"
-    );
-    if (spriteContainer && this.losingSprite) {
-      // Clear any existing content
-      spriteContainer.innerHTML = "";
-
-      // Create image element for the sprite
-      const img = document.createElement("img");
-      img.src = this.losingSprite.imagePath;
-      spriteContainer.appendChild(img);
-
-      // Wait for sprite to load before playing
-      const playWhenReady = () => {
-        if (this.losingSprite.isLoaded) {
-          this.losingSprite.play(spriteContainer);
-        } else {
-          // Check again in a bit
-          requestAnimationFrame(playWhenReady);
-        }
-      };
-      requestAnimationFrame(playWhenReady);
-    }
+    // Sprite animations removed
 
     // Show defeat screen
     this.defeatScreen.style.display = "flex";
@@ -321,14 +193,6 @@ export class GameOverScreen {
    * Hide both screens
    */
   hide() {
-    // Stop sprite animations
-    if (this.losingSprite) {
-      this.losingSprite.stop();
-    }
-    if (this.winningSprite) {
-      this.winningSprite.stop();
-    }
-
     this.victoryScreen.style.display = "none";
     this.defeatScreen.style.display = "none";
 

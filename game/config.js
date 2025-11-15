@@ -46,7 +46,7 @@ export const GAME_CONFIG = {
   // Enemies
   ENEMY_SPAWN_INTERVAL: 60000, // 1 minute in ms
   ENEMY_SPEED: 0.5, // Horizontal movement speed
-  ENEMY_START_X: 850, // Spawn from right
+  ENEMY_START_X: 650, // Spawn from right
   ENEMY_MIN_Y: 100,
   ENEMY_MAX_Y: 500,
   ENEMY_HEALTH: 3, // Hits to destroy
@@ -69,7 +69,7 @@ export const GAME_CONFIG = {
       costMultiplier: 1.5,
       baseProduction: 1, // Coins per second
       productionMultiplier: 1.3,
-      image: "gold-production-building.png"
+      image: "gold-production-building.png",
     },
     AUTO_ATTACK: {
       name: "Auto Attack",
@@ -80,7 +80,7 @@ export const GAME_CONFIG = {
       damageIncrease: 0.5,
       baseRange: 200,
       rangeIncrease: 20,
-      image: "auto-attack-building.png"
+      image: "auto-attack-building.png",
     },
     HEALTH: {
       name: "Health Upgrade",
@@ -88,7 +88,7 @@ export const GAME_CONFIG = {
       baseCost: 25,
       costMultiplier: 2,
       healthIncrease: 1,
-      image: "player-default.png"
+      image: "player-default.png",
     },
     MAGNET_STRENGTH: {
       name: "Magnet Strength",
@@ -97,7 +97,7 @@ export const GAME_CONFIG = {
       costMultiplier: 1.4,
       baseRange: 80,
       rangeIncrease: 20,
-      image: "magnet-range-building.png"
+      image: "magnet-range-building.png",
     },
     BALLOON_VALUE: {
       name: "Balloon Value",
@@ -105,7 +105,7 @@ export const GAME_CONFIG = {
       baseCost: 30,
       costMultiplier: 1.7,
       valueIncrease: 1,
-      image: "balloon-value-building.png"
+      image: "balloon-value-building.png",
     },
     ENERGY_PRODUCTION: {
       name: "Energy Production",
@@ -114,8 +114,8 @@ export const GAME_CONFIG = {
       costMultiplier: 1.5,
       baseProduction: 0.5, // Energy per frame
       productionMultiplier: 1.2,
-      image: "energy-production-building.png"
-    }
+      image: "energy-production-building.png",
+    },
   },
 
   // Timings (in milliseconds)
