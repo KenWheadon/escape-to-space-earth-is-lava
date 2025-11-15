@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(python -m http.server:*)",
+      "Bash(node:*)",
+      "Bash(start chrome index.html)",
+      "Bash(findstr:*)",
+      "Bash(echo:*)",
+      "Bash(\"c:\\Users\\kenne\\OneDrive\\Documents\\GitHub\\hot-air-balloon-escapes-to-space\\game\\styles.css\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

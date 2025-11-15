@@ -1,0 +1,531 @@
+/* ========================================
+   HOT AIR BALLOON GAME STYLES
+   ======================================== */
+
+/* Game Canvas */
+#game-canvas {
+  position: relative;
+  width: 800px;
+  height: 600px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 100%);
+  border: var(--border-thick) solid #000000;
+  box-shadow: var(--shadow-brutal);
+}
+
+/* Background Sky */
+#background-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, #001440 0%, #87CEEB 50%, #E0F6FF 100%);
+  z-index: 0;
+}
+
+/* Cloud Layers */
+.cloud-layer {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background-image:
+    radial-gradient(ellipse 100px 40px at 20% 50%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(ellipse 120px 50px at 50% 50%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(ellipse 100px 40px at 80% 50%, rgba(255, 255, 255, 0.8), transparent);
+  background-size: 300px 80px;
+  background-repeat: repeat-x;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#cloud-layer-1 {
+  opacity: 0.9;
+}
+
+#cloud-layer-2 {
+  opacity: 0.7;
+}
+
+#cloud-layer-3 {
+  opacity: 0.5;
+}
+
+#cloud-layer-4 {
+  opacity: 0.3;
+}
+
+/* Lava */
+#lava {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(to bottom, #ff4400 0%, #ff0000 50%, #cc0000 100%);
+  border-top: var(--border-thick) solid #ff6600;
+  box-shadow: 0 -10px 30px rgba(255, 68, 0, 0.6);
+  z-index: 10;
+  animation: lavaGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes lavaGlow {
+  from { box-shadow: 0 -10px 30px rgba(255, 68, 0, 0.6); }
+  to { box-shadow: 0 -10px 50px rgba(255, 68, 0, 0.9); }
+}
+
+/* Game Entities Container */
+#game-entities {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Player Balloon */
+#player-balloon {
+  position: absolute;
+  width: 80px;
+  height: 100px;
+  cursor: pointer;
+  z-index: 6;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  transition: filter 0.1s;
+}
+
+#player-balloon:hover {
+  filter: brightness(1.1);
+}
+
+#player-balloon:active {
+  filter: brightness(1.2);
+}
+
+#player-balloon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.3));
+}
+
+/* Golden Balloons */
+.golden-balloon {
+  position: absolute;
+  width: 40px;
+  height: 50px;
+  transform: translate(-50%, -50%);
+  animation: bobFloat 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.golden-balloon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.2));
+}
+
+@keyframes bobFloat {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-5px); }
+}
+
+/* Enemy Balloons */
+.enemy-balloon {
+  position: absolute;
+  width: 70px;
+  height: 90px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.enemy-balloon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(3px 3px 3px rgba(0, 0, 0, 0.3));
+}
+
+/* Lasers */
+.laser {
+  position: absolute;
+  height: 4px;
+  background: linear-gradient(to right, #00ffff, #ffffff, #00ffff);
+  box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+  pointer-events: none;
+  animation: laserPulse 0.1s ease-in-out infinite;
+}
+
+@keyframes laserPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Game UI */
+#game-ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 20;
+}
+
+#game-ui > * {
+  pointer-events: auto;
+}
+
+/* Shop Button */
+#shop-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: bold;
+  background: var(--color-primary);
+  color: #000000;
+  border: var(--border-medium) solid #000000;
+  box-shadow: var(--shadow-brutal);
+  cursor: pointer;
+  transition: all 0.1s;
+  text-transform: uppercase;
+}
+
+#shop-btn:hover {
+  box-shadow: var(--shadow-brutal-hover);
+  transform: translate(-2px, -2px);
+}
+
+#shop-btn:active {
+  box-shadow: var(--shadow-brutal-active);
+  transform: translate(2px, 2px);
+}
+
+/* Resource Display */
+#resource-display {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 20px;
+  border: var(--border-medium) solid #000000;
+  box-shadow: var(--shadow-brutal);
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #000000;
+}
+
+.resource-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+/* Energy Bar */
+#energy-bar-container {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#energy-bar-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 2px 2px 0px #000000;
+  letter-spacing: 2px;
+}
+
+#energy-bar-bg {
+  width: 30px;
+  height: 200px;
+  background: rgba(0, 0, 0, 0.3);
+  border: var(--border-medium) solid #000000;
+  box-shadow: var(--shadow-brutal);
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+#energy-bar-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, #00ff00, #00ffff);
+  transition: height 0.2s;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+#energy-bar-text {
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 2px 2px 0px #000000;
+  text-align: center;
+}
+
+/* Cloud Layer Progress Bar */
+#cloud-progress-container {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+#cloud-progress-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 2px 2px 0px #000000;
+  letter-spacing: 2px;
+}
+
+#cloud-layer-name {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--color-primary);
+  text-shadow: 2px 2px 0px #000000;
+  letter-spacing: 1px;
+}
+
+#cloud-progress-bg {
+  width: 30px;
+  height: 200px;
+  background: rgba(0, 0, 0, 0.3);
+  border: var(--border-medium) solid #000000;
+  box-shadow: var(--shadow-brutal);
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+#cloud-progress-fill {
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(to top, #9966ff, #66ccff);
+  transition: height 0.2s;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+#cloud-progress-text {
+  font-size: 12px;
+  font-weight: bold;
+  color: #ffffff;
+  text-shadow: 2px 2px 0px #000000;
+  text-align: center;
+}
+
+/* Altitude Display */
+#altitude-display {
+  position: absolute;
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 15px 20px;
+  border: var(--border-medium) solid #000000;
+  box-shadow: var(--shadow-brutal);
+  text-align: center;
+}
+
+#altitude-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--color-accent);
+  text-shadow: 2px 2px 0px #000000;
+  letter-spacing: 2px;
+  margin-bottom: 5px;
+}
+
+#altitude-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--color-primary);
+  text-shadow: 2px 2px 0px #000000;
+}
+
+/* Shop Panel */
+.shop-panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+  transition: opacity 0.3s;
+}
+
+.shop-panel.hidden {
+  display: none;
+}
+
+.shop-content {
+  background: var(--color-card);
+  border: var(--border-thick) solid #000000;
+  box-shadow: var(--shadow-brutal);
+  padding: 30px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 80%;
+  overflow-y: auto;
+  position: relative;
+}
+
+.shop-content h2 {
+  margin: 0 0 20px 0;
+  font-size: 32px;
+  color: #000000;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.shop-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 36px;
+  font-weight: bold;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #000000;
+  line-height: 1;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+}
+
+.shop-close-btn:hover {
+  transform: scale(1.1);
+  color: var(--color-danger);
+}
+
+#shop-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.05);
+  border: var(--border-medium) solid #000000;
+  padding: 15px;
+  box-shadow: 4px 4px 0px #000000;
+}
+
+.shop-item-icon {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  border: 3px solid #000000;
+  background: #ffffff;
+}
+
+.shop-item-info {
+  flex: 1;
+}
+
+.shop-item-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000000;
+  margin-bottom: 5px;
+}
+
+.shop-item-description {
+  font-size: 14px;
+  color: #333333;
+  margin-bottom: 5px;
+}
+
+.shop-item-level {
+  font-size: 14px;
+  color: #666666;
+}
+
+.shop-buy-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  background: var(--color-primary);
+  color: #000000;
+  border: var(--border-medium) solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+  cursor: pointer;
+  transition: all 0.1s;
+  white-space: nowrap;
+}
+
+.shop-buy-btn:hover {
+  box-shadow: 6px 6px 0px #000000;
+  transform: translate(-1px, -1px);
+}
+
+.shop-buy-btn:active {
+  box-shadow: 2px 2px 0px #000000;
+  transform: translate(2px, 2px);
+}
+
+.shop-buy-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.shop-buy-btn:disabled:hover {
+  box-shadow: 4px 4px 0px #000000;
+  transform: none;
+}
+
+.cost-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}

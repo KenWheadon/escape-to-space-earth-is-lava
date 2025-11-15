@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>HOT AIR BALLOON ESCAPES TO SPACE (SINCE THE EARTH IS LAVA)</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="game-styles.css" />
+  </head>
+  <body>
+    <!-- Canvas for particle effects -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <div id="loading-content">
+        <div id="producer-text">Produced by Weird Demon Games</div>
+        <div id="loading-logo-container"></div>
+        <div id="loading-progress-bar">
+          <div id="loading-progress-fill"></div>
+        </div>
+        <div id="loading-progress-text">0%</div>
+        <button id="loading-start-btn" class="loading-start-btn">
+          START GAME
+        </button>
+      </div>
+    </div>
+
+    <div id="overlay"></div>
+
+    <!-- Story Panel -->
+    <div id="story-panel">
+      <div id="story-panel-content">
+        <div id="story-panel-image">
+          <img id="story-img" src="images/story1.jpg" alt="Story Panel" />
+        </div>
+        <div id="story-panel-text">
+          <p id="story-text">Story text will appear here...</p>
+        </div>
+        <div id="story-panel-pagination">
+          <span id="story-page-indicator">1 / 8</span>
+        </div>
+        <div id="story-panel-controls">
+          <button id="story-back-btn" class="story-nav-btn">← Back</button>
+          <button id="story-skip-btn" class="story-action-btn">Skip</button>
+          <button id="story-next-btn" class="story-nav-btn">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="how-to-play">
+      <button id="close-htp">&times;</button>
+      <h2>How to Play</h2>
+
+      <div class="htp-section htp-accordion active">
+        <h3 class="htp-accordion-header">
+          <span>Game Instructions</span>
+          <span class="htp-accordion-icon" style="transform: rotate(180deg)"
+            >▼</span
+          >
+        </h3>
+        <div class="htp-accordion-content" style="max-height: 1000px">
+          <div class="htp-basic-grid">
+            <div class="htp-card">
+              <div class="htp-content">
+                <strong>Add Your Instructions Here</strong>
+                <p>
+                  Customize this section with your game's instructions and
+                  mechanics.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="htp-footer">
+        <button id="view-story-btn" class="view-story-btn">View Story</button>
+      </div>
+    </div>
+
+    <div id="title-screen">
+      <h1 id="title">HOT AIR BALLOON ESCAPES TO SPACE</h1>
+      <p>SINCE THE EARTH IS LAVA</p>
+      <div class="button-container">
+        <div class="start-btn-wrapper">
+          <button class="title-btn" id="start-btn">Start Game</button>
+        </div>
+      </div>
+      <div class="bottom-row">
+        <button class="title-btn audio-toggle-btn" id="audio-toggle-title">
+          <img src="images/icon-musicnote.png" alt="Audio" class="audio-icon" />
+        </button>
+        <button class="title-btn trophy-icon-btn" id="trophy-btn">
+          <img src="images/icon-star.png" alt="Trophies" class="trophy-icon" />
+        </button>
+        <button class="title-btn htp-icon-btn" id="htp-btn">
+          <img
+            src="images/icon-questionmark.png"
+            alt="How to Play"
+            class="htp-button-icon"
+          />
+        </button>
+      </div>
+    </div>
+
+    <!-- Trophy Popup -->
+    <div id="trophy-popup">
+      <button id="close-trophy">&times;</button>
+      <h2>Trophies</h2>
+
+      <div id="trophy-grid">
+        <!-- Trophy items will be dynamically inserted here -->
+      </div>
+    </div>
+
+    <!-- Trophy Detail Popup -->
+    <div id="trophy-detail-popup">
+      <button id="close-trophy-detail">&times;</button>
+      <div id="trophy-detail-content">
+        <img id="trophy-detail-icon" src="" alt="Trophy Icon" />
+        <h3 id="trophy-detail-name"></h3>
+        <div id="trophy-detail-requirement"></div>
+        <div id="trophy-detail-flavor"></div>
+      </div>
+    </div>
+
+    <!-- Pause Overlay and Popup -->
+    <div id="pause-overlay">
+      <div id="pause-popup">
+        <h1 id="pause-title">PAUSED</h1>
+        <div class="pause-buttons">
+          <button class="pause-btn pause-resume-btn" id="pause-resume-btn">
+            Resume
+          </button>
+          <button class="pause-btn pause-quit-btn" id="pause-quit-btn">
+            Quit
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pause Button (Top Right) - Outside game div so it stays on top -->
+    <button id="pause">Pause</button>
+
+    <div id="game">
+      <!-- Game Content Area -->
+      <div id="game-content">
+        <h2 id="game-title">Game Template</h2>
+        <p id="game-instructions">
+          Use the buttons below to simulate win/lose conditions
+        </p>
+
+        <!-- Game Simulation Buttons -->
+        <div id="game-buttons">
+          <button id="win-btn" class="game-control-btn win-btn">
+            Win Game
+          </button>
+          <button id="lose-btn" class="game-control-btn lose-btn">
+            Lose Game
+          </button>
+        </div>
+
+        <!-- Message -->
+        <div id="message"></div>
+      </div>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="victory-screen">
+      <div class="game-over-container">
+        <h1 class="game-over-title victory-title">VICTORY!</h1>
+        <div class="game-over-subtitle">All Enemies Defeated</div>
+
+        <div class="victory-content">
+          <div class="victory-stats-row">
+            <div class="victory-player-sprite-container">
+              <!-- Sprite animation will be injected here -->
+            </div>
+            <div class="victory-info">
+              <div id="victory-badge" class="high-score-badge">NEW RECORD!</div>
+              <div class="time-display">
+                <div class="time-label">Your Time</div>
+                <div id="victory-time" class="time-value">0:00.00</div>
+              </div>
+              <div class="star-rating">
+                <div class="star" data-star="1"></div>
+                <div class="star" data-star="2"></div>
+                <div class="star" data-star="3"></div>
+              </div>
+            </div>
+          </div>
+          <div class="victory-message">
+            The mecha threat has been neutralized.<br />
+            Time flows freely once more!
+          </div>
+        </div>
+
+        <div class="game-over-buttons">
+          <button class="game-over-main-menu">Main Menu</button>
+          <button class="game-over-restart">Try Again</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Defeat Screen -->
+    <div id="defeat-screen">
+      <div class="game-over-container">
+        <h1 class="game-over-title defeat-title">DEFEATED</h1>
+        <div class="game-over-subtitle">Systems Overloaded</div>
+
+        <div class="defeat-content">
+          <div class="defeat-stats-row">
+            <div class="defeat-player-sprite-container">
+              <!-- Sprite animation will be injected here -->
+            </div>
+            <div class="fight-reached">
+              <div class="fight-label">Fight Reached</div>
+              <div id="defeat-fight" class="fight-value">1</div>
+            </div>
+          </div>
+          <div class="defeat-message">
+            You have failed to avenge your lunch.<br />
+            The clankers win again...
+          </div>
+        </div>
+
+        <div class="game-over-buttons">
+          <button class="game-over-main-menu">Main Menu</button>
+          <button class="game-over-restart">Try Again</button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initTitleScreen } from "./title-screen.js";
+      import { loadingScreen } from "./loading-screen.js";
+      import { storyPanel } from "./story-panel.js";
+      import { hasSeenStory, markStorySeen } from "./storage-manager.js";
+      import { initResponsiveScaling } from "./responsive-scale.js";
+
+      // Initialize responsive scaling
+      initResponsiveScaling();
+
+      // Show loading screen
+      loadingScreen.show();
+
+      // Set initial static logo
+      const logoContainer = document.getElementById("loading-logo-container");
+      logoContainer.innerHTML = `<img src="images/company-logo.png" alt="Company Logo" id="loading-logo" />`;
+
+      // Start loading all game assets (images and audio)
+      loadingScreen.preloadAllAssets();
+
+      // Wait for page to fully load
+      window.addEventListener("load", async () => {
+        // Complete loading and show start button
+        await loadingScreen.complete(
+          async () => {
+            // Logo animation can be added here if needed
+          },
+          () => {
+            // OPTIONAL: Show story on first load
+            // Uncomment the following block to enable first-time story display
+            /*
+            if (!hasSeenStory()) {
+              // Show story panel over the loading screen
+              storyPanel.open(() => {
+                // Mark story as seen and hide loading screen
+                markStorySeen();
+                loadingScreen.hide();
+                // Initialize title screen after story is complete
+                initTitleScreen();
+              });
+            } else {
+              // Hide loading screen and go straight to title screen
+              loadingScreen.hide();
+              initTitleScreen();
+            }
+            */
+
+            // Default: Skip story and go straight to title screen
+            loadingScreen.hide();
+            initTitleScreen();
+          }
+        );
+      });
+    </script>
+  </body>
+</html>
